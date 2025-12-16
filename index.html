@@ -58,6 +58,11 @@
                         <i class='bx bx-search-alt-2'></i>
                         <i id="tienda" class='bx bxs-shopping-bag'></i><span id="contador-carrito">0</span>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#userModal">
+                            <i class="bx bx-user"></i> 
+                        </a>
+                    </li>
                 </ul>    
             </div>
         </div>
@@ -174,6 +179,50 @@
             
         </div>
     </footer>
+
+    <!-- user -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Acceso / Registro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                
+                <div class="modal-body">
+                    
+                    <button type="button" class="btn btn-outline-dark w-100 mb-3" id="googleLoginBtn">
+                        <i class="bx bxl-google align-middle me-2"></i> 
+                        Continuar con Google
+                    </button>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <hr class="flex-grow-1">
+                        <span class="mx-2 text-muted">O</span>
+                        <hr class="flex-grow-1">
+                    </div>
+
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="inputPassword">
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 mt-3">Iniciar Sesión</button>
+                    </form>
+                </div>
+                
+                <div class="modal-footer justify-content-center">
+                    <a href="#" class="btn btn-link text-decoration-none" data-bs-dismiss="modal">¿Olvidaste tu contraseña?</a>
+                    </div>
+                
+            </div>
+        </div>
+    </div>
 
     <!-- Link Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>

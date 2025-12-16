@@ -182,3 +182,112 @@ const pintarTotalCarrito = (totalCantidad, totalCompra) => {
     contadorCarrito.innerText = totalCantidad;
     precioTotal.innerText = totalCompra;
 }; 
+
+
+// =======================================================
+// === MÓDULO DE AUTENTICACIÓN (LOGIN) ===
+// =======================================================
+
+// 1. Alerta de Inicio de Sesión Exitosa
+const alertaLoginExitoso = (email) => {
+    Toastify({
+        text: `¡Bienvenido, ${email.split('@')[0]}!`,
+        duration: 2500,
+        offset: {
+            x: 20,
+            y: 100 
+        },
+        style: {
+            background: 'green', // Usamos verde para éxito
+            color: 'white',
+        }
+    }).showToast();
+};
+
+// 2. Alerta de Error de Credenciales
+const alertaLoginError = () => {
+    Toastify({
+        text: "Error de credenciales. Por favor, revisa tu email y contraseña.",
+        duration: 3000,
+        offset: {
+            x: 20,
+            y: 100 
+        },
+        style: {
+            background: 'red', // Usamos rojo para error
+            color: 'white',
+        }
+    }).showToast();
+};
+
+// 3. Manejo del Evento Submit del Formulario
+const manejarLogin = (e) => {
+    // IMPEDIR ENVÍO POR DEFECTO: Evita que la página se recargue
+    e.preventDefault(); 
+    
+    // Obtener los elementos del formulario (usando los IDs del HTML del modal)
+    const form = e.target;
+    const emailInput = document.getElementById('inputEmail');
+    const passwordInput = document.getElementById('inputPassword');
+    
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    // Validación Mínima (simulación)
+    // En un entorno real, esta data se enviaría a un servidor (fetch/axios) para autenticación.
+    
+    if (email === "test@mail.com" && password === "1234") {
+        
+        // --- SIMULACIÓN DE LOGIN EXITOSO ---
+        
+        // 1. Mostrar Toastify de bienvenida
+        alertaLoginExitoso(email); 
+        
+        // 2. Cerrar el modal de Bootstrap
+        // Necesitamos obtener la instancia del modal y llamar al método hide()
+        const userModalElement = document.getElementById('userModal');
+        const userModal = bootstrap.Modal.getInstance(userModalElement); // Obtiene la instancia ya inicializada por Bootstrap
+        
+        if (userModal) {
+             userModal.hide();
+        } 
+        
+        // 3. Limpiar los campos del formulario
+        form.reset(); 
+        
+    } else {
+        
+        // --- SIMULACIÓN DE LOGIN FALLIDO ---
+        
+        // 1. Mostrar Toastify de error
+        alertaLoginError();
+        
+        // 2. Opcional: enfocar el campo de email o contraseña
+        emailInput.focus();
+    }
+};
+
+// 4. Inicialización: Añadir el Event Listener al formulario
+// Esta función se llama al inicio de la carga del script, igual que tus otras funciones.
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    
+    // Comprobamos que el formulario exista antes de añadir el listener
+    if (loginForm) {
+        loginForm.addEventListener('submit', manejarLogin);
+    }
+    
+    // También necesitamos la inicialización para el botón de Google (solo un placeholder)
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', () => {
+            Toastify({
+                text: "Funcionalidad de Google Login en desarrollo. Por favor, usa el formulario clásico.",
+                duration: 3000,
+                offset: { x: 20, y: 100 },
+                style: { background: 'blue' }
+            }).showToast();
+        });
+    }
+});

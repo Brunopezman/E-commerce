@@ -285,6 +285,54 @@ button:hover {
     background-color: rgb(245, 146, 109);
 }
 
+/* Estilos Modal de Inicio de Sesión */
+/* 1. Botón de Inicio de Sesión */
+.modal-content .btn-dark {
+    background-color: black;
+    color: white;
+}
+
+.modal-content .btn-dark:hover {
+    background-color: rgb(245, 146, 109); /* Color de marca (coral) */
+    color: white;
+}
+
+/* 2. Enlace en el Modal Footer (¿Olvidaste tu contraseña?) */
+
+.modal-footer a.btn-link {
+    color: black; /* Color por defecto */
+    transition: 0.3s ease;
+}
+
+.modal-footer a.btn-link:hover {
+    color: rgb(245, 146, 109); /* Color de marca (coral) en hover */
+    text-decoration: none; /* Asegura que la línea de abajo no vuelva a aparecer */
+}
+
+/* 3. Estilo de los campos de formulario (Opcional, pero mejora la estética) */
+.modal-body .form-control:focus {
+    border-color: rgb(245, 146, 109);
+    box-shadow: 0 0 0 0.25rem rgba(245, 146, 109, 0.25);
+}
+
+/* Estilos adicionales para el modal de Acceso/Registro */
+
+/* Alineación del icono de Google */
+.bx.bxl-google {
+    font-size: 1.2rem;
+    position: relative;
+    top: 2px;
+}
+
+/* Estilo para las líneas divisorias "O" */
+.modal-body hr {
+    /* Usamos tu color de marca para las líneas divisorias */
+    background-color: rgb(245, 146, 109);
+    height: 1px; /* más delgado para ser un separador sutil */
+    border: none;
+    opacity: 1;
+}
+
 /* Estilos pagination */
 #destacados > div.row.mx-auto.container > nav > ul > li.page-item.active > a {
     background-color: black;
