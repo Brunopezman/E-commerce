@@ -110,24 +110,48 @@
     }
   };
 
-  // Event listeners guarded by existence
   document.addEventListener('DOMContentLoaded', () => {
     const carritoVacioBtn = document.getElementById('vaciarCarrito');
     if (carritoVacioBtn) carritoVacioBtn.addEventListener('click', window.vaciarCarrito);
 
-    // If there's saved carrito, restore
     if (localStorage.getItem('carrito')) {
-      window.carrito = window.obtenerCarritoStorage() || [];
-      window.actualizarCarrito(window.carrito);
-      window.actualizarTotalCarrito(window.carrito);
+        window.carrito = window.obtenerCarritoStorage() || [];
+        
+        // 🚀 CAMBIO CLAVE: Solo actualizar si existen los contenedores en el DOM
+        const contenedor = document.getElementById('carrito-contenedor');
+        if (contenedor) {
+            window.actualizarCarrito(window.carrito);
+            window.actualizarTotalCarrito(window.carrito);
+        } else {
+            // Si no hay contenedor (como en checkout), solo actualizamos los números del nav
+            const contador = document.getElementById('contador-carrito');
+            if (contador) {
+                const totalCantidad = window.carrito.reduce((acc, item) => acc + item.cantidad, 0);
+                contador.innerText = totalCantidad;
+            }
+        }
     }
+  });
 
-    // delegate remove button clicks
-    document.addEventListener('click', (e) => {
-      if (e.target && e.target.classList && e.target.classList.contains('boton-eliminar')) {
-        window.eliminarProductoCarrito(e.target.value);
+  const btnCheckout = document.getElementById('btn-checkout');
+
+  if (btnCheckout) {
+    btnCheckout.addEventListener('click', () => {
+      // Obtenemos el carrito actual de la ventana o del storage
+      const itemsEnCarrito = window.obtenerCarritoStorage();
+
+      if (itemsEnCarrito.length === 0) {
+        // Usamos Toastify que ya tienes linkeado
+        Toastify({
+          text: "El carrito está vacío, ¡agrega algunos productos!",
+          duration: 2000,
+          style: { background: "linear-gradient(to right, #e74c3c, #c0392b)" }
+        }).showToast();
+      } else {
+        // Redireccionamos a la vista de checkout
+        window.location.href = 'checkout.html';
       }
     });
-  });
+  }
 
 })();

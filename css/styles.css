@@ -216,6 +216,54 @@ section div h5 {
     outline: none;
 }
 
+/* Botón de Finalizar Compra */
+#btn-checkout {
+    width: 100%;
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin-top: 15px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#btn-checkout:hover {
+    background-color: rgb(245, 146, 109); /* Cambia al color de destaque de tu marca */
+}
+
+/* Botón Vaciar Carrito (Más sutil) */
+#vaciarCarrito {
+    width: 100%;
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #ccc;
+    padding: 8px;
+    margin-top: 10px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#vaciarCarrito:hover {
+    background-color: #f8f8f8;
+    color: rgb(245, 146, 109);
+    border-color: rgb(245, 146, 109);
+}
+
+/* Ajuste para el contenedor de productos */
+#carrito-contenedor {
+    max-height: 400px; /* Evita que el modal sea eterno si hay muchos productos */
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
 /* Estilos productos */
 
 .product {
@@ -283,6 +331,29 @@ button {
 
 button:hover {
     background-color: rgb(245, 146, 109);
+}
+
+#btn-checkout {
+    background-color: #27ae60; /* Verde para acción positiva */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#btn-checkout:hover {
+    background-color: #2ecc71;
+}
+
+#vaciarCarrito {
+    background-color: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
 }
 
 /* Estilos Modal de Inicio de Sesión */
@@ -444,5 +515,13 @@ footer i:hover, footer i:active {
     #navbarSupportedContent > ul > li:nth-child(n) > a {
         padding: 10px 0;
 
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-carrito {
+        min-width: 90%;
+        margin: 10px;
+        padding: 15px;
     }
 }
