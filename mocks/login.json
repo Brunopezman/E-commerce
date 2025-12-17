@@ -1,0 +1,4 @@
+{
+  "token": "mocked-jwt-token-123456",
+  "user": { "email": "test@local" }
+}

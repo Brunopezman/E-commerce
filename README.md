@@ -1,4 +1,4 @@
-# 🛒 Rock Merch & Roll - E-commerce | Coderhouse 
+# 🛒 Rock Merch & Roll - E-commerce
 
 Rock Merch & Roll (RMR) es una aplicación web de e-commerce centrada en la venta de productos relacionados con bandas de rock. Los usuarios pueden explorar y comprar artículos como remeras, tazas, gorras, posters y más, con diseños de bandas icónicas del género.
 

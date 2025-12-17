@@ -1,7 +1,9 @@
 // Auth module: maneja login/logout y actualización de UI
 (function(){
-  const API_LOGIN_ENDPOINT = 'https://mis-credenciales.free.beeceptor.com/login';
-  const API_GOOGLE_ENDPOINT = 'http://tu-servidor-backend.com/api/auth/google';
+  // Leer configuración global si está disponible
+  const API_BASE = (typeof window !== 'undefined' && window.Config && window.Config.API_URL) ? window.Config.API_URL : '';
+  const API_LOGIN_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/login` : 'https://mis-credenciales.free.beeceptor.com/login';
+  const API_GOOGLE_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/google` : 'http://tu-servidor-backend.com/api/auth/google';
 
   const userModalElement = document.getElementById('userModal');
   const emailInput = document.getElementById('inputEmail');
@@ -41,12 +43,20 @@
     }
 
     try {
-      const response = await fetch(API_LOGIN_ENDPOINT, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
-      });
+      // Si está habilitado el mock de auth en Config, usar la URL de mock
+      const useMock = (typeof window !== 'undefined' && window.Config && window.Config.USE_MOCK_AUTH);
+      const mockUrl = (typeof window !== 'undefined' && window.Config && window.Config.MOCK_AUTH_URL) ? window.Config.MOCK_AUTH_URL : null;
+      const endpoint = useMock && mockUrl ? mockUrl : API_LOGIN_ENDPOINT;
+
+      const opts = useMock ? { method: 'GET' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) };
+
+      const response = await fetch(endpoint, opts);
       const data = await response.json();
+
       if (response.ok) {
-        guardarToken(data.token);
+        // Si es mock y no viene token, intentar leer structure
+        const token = data.token || data.accessToken || null;
+        if (token) guardarToken(token);
         alertaLoginExitoso(email);
         cerrarModalUsuario(); form.reset();
         actualizarInterfazUsuario();
@@ -56,8 +66,9 @@
         if (emailInput) emailInput.focus();
       }
     } catch (error) {
-      console.error('Error al intentar iniciar sesión:', error);
-      alertaLoginError('No se pudo conectar al servidor.');
+      // Mostrar mensaje amigable en UI, evitar crash en consola redundante
+      console.warn('Login request failed (network or CORS):', error);
+      alertaLoginError('No se pudo conectar al servidor de autenticación.');
     }
   };
 
