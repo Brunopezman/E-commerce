@@ -58,9 +58,18 @@
                         <i id="tienda" class='bx bxs-shopping-bag'></i><span id="contador-carrito">0</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#userModal">
-                            <i class="bx bx-user"></i> 
-                        </a>
+                        <div id="auth-ui-container">
+                            
+                            <a id="login-nav-item" class="nav-link" href="#" 
+                            data-bs-toggle="modal" data-bs-target="#userModal" 
+                            style="display: block;"> <i class="bx bx-user"></i>
+                            </a>
+
+                            <a id="logout-nav-item" class="nav-link" href="#" style="display: none;">
+                                <i class="bx bx-log-out align-middle me-1"></i> Cerrar Sesión
+                            </a>
+                            
+                        </div>
                     </li>
                 </ul>    
             </div>
@@ -189,10 +198,9 @@
                         <button type="submit" class="btn btn-dark w-100 mt-3">Iniciar Sesión</button>
                     </form>
                 </div>
-                
                 <div class="modal-footer justify-content-center">
                     <a href="#" class="btn btn-link text-decoration-none" data-bs-dismiss="modal">¿Olvidaste tu contraseña?</a>
-                    </div>
+                </div>
                 
             </div>
         </div>
@@ -204,8 +212,11 @@
 
     <!-- Links a src -->
     <script src="../src/components/modal.js"></script>
+    <script src="../src/components/navbar.js"></script>
     <script src="../src/index.js"></script>
-    <script src="../src/app.js"></script>
+        <script src="../src/components/cart.js"></script>
+        <script src="../src/components/products.js"></script>
+        <script src="../src/components/auth.js"></script>
     
 </body>
 </html>
