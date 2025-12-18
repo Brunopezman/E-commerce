@@ -61,9 +61,28 @@
       }
 
       const response = await fetch(endpoint, opts);
-      const data = await response.json();
 
-        if (response.ok) {
+      // Intentar parsear JSON solo si la respuesta tiene content-type JSON
+      let data;
+      try {
+        const ct = response.headers.get('content-type') || '';
+        if (ct.toLowerCase().includes('application/json')) {
+          data = await response.json();
+        } else {
+          // Si viene HTML o texto (p. ej. una página de error), leer como texto
+          const text = await response.text();
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            data = { msg: text };
+          }
+        }
+      } catch (parseErr) {
+        console.warn('Could not parse login response as JSON:', parseErr);
+        data = { msg: 'Respuesta inesperada del servidor.' };
+      }
+
+      if (response.ok) {
         // Si es mock y no viene token, intentar leer structure
         const token = data.token || data.accessToken || null;
         if (token) guardarToken(token);
