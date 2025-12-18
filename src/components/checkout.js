@@ -179,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pdf.text('COMPROBANTE DE PAGO - RMR', 20, y); y += 10;
         pdf.text(`Fecha: ${new Date().toLocaleString()}`, 20, y); y += 8;
         pdf.text(`Cliente: ${nombreTitular}`, 20, y); y += 8;
-        pdf.text(`Email: ${userEmail}`, 20, y); y += 8;
         pdf.text(`Tarjeta: **** **** **** ${nroTarjeta.slice(-4)}`, 20, y); y += 8;
         pdf.text(`Dirección de entrega: ${direccion}`, 20, y); y += 10;
 

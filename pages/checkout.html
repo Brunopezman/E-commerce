@@ -50,9 +50,6 @@
                         <a class="nav-link active" href="shop.html">Shop</a>
                     </li>
                     <li class="nav-item">
-                        <i id="tienda" class='bx bxs-shopping-bag'></i><span id="contador-carrito">0</span>
-                    </li>
-                    <li class="nav-item">
                         <div id="auth-ui-container">
                             
                             <a id="login-nav-item" class="nav-link" href="#" 
@@ -151,8 +148,8 @@
         </div>
     </div>
 
-    <div id="seccion-exito" class="container my-5 text-center" style="display: none;">
-        <i class='bx bx-check-circle text-success' style="font-size: 5rem;"></i>
+    <div id="seccion-exito" class="container my-5 py-5 text-center" style="display: none;">
+        <i class='bx bx-check-circle text-success my-5' style="font-size: 5rem;"></i>
         <h2 class="mt-3">¡Compra Realizada con Éxito!</h2>
         <p class="lead">Hemos enviado el comprobante a tu correo electrónico.</p>
         <div class="mt-4">
@@ -162,23 +159,6 @@
             <a href="shop.html" class="btn btn-dark">Volver a la Tienda</a>
         </div>
         <p class="text-muted mt-5">Serás redireccionado automáticamente en <span id="timer">15</span> segundos...</p>
-    </div>
-
-    <!-- Modal Carrito -->
-    <div class="modal-contenedor">
-        <div class="modal-carrito">
-            <h3>Carrito</h3>
-            <button id="btn-cerrar-carrito"><i class='bx bxs-x-circle'></i></button>
-            
-            <div id="carrito-contenedor">
-                </div>
-            
-            <p class="precioProducto">Precio Total: $<span id="precioTotal">0</span></p>
-
-            <button id="btn-checkout" class="btn-comprar">Finalizar Compra</button>
-            
-            <button id="vaciarCarrito">Limpiar carrito</button>
-        </div>
     </div>
 
     <!-- Footer -->
