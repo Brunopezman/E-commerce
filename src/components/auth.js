@@ -4,7 +4,6 @@
   const API_BASE = (typeof window !== 'undefined' && window.Config && window.Config.API_URL) ? window.Config.API_URL : null;
   // Si no hay API_BASE, dejamos el endpoint en null para forzar configuración explícita
   const API_LOGIN_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/login` : null;
-  const API_GOOGLE_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/google` : null;
 
   // Aviso: si no hay endpoint configurado y no se usa mock, el login no funcionará.
   if (!API_LOGIN_ENDPOINT && !(typeof window !== 'undefined' && window.Config && window.Config.USE_MOCK_AUTH)) {
@@ -64,10 +63,12 @@
       const response = await fetch(endpoint, opts);
       const data = await response.json();
 
-      if (response.ok) {
+        if (response.ok) {
         // Si es mock y no viene token, intentar leer structure
         const token = data.token || data.accessToken || null;
         if (token) guardarToken(token);
+          // Guardar email para mostrar nombre de usuario en UI
+          try { localStorage.setItem('userEmail', email); } catch (e) {}
         alertaLoginExitoso(email);
         cerrarModalUsuario(); form.reset();
         actualizarInterfazUsuario();
@@ -77,7 +78,6 @@
         if (emailInput) emailInput.focus();
       }
     } catch (error) {
-      // Mostrar mensaje amigable en UI, evitar crash en consola redundante
       console.warn('Login request failed (network or CORS):', error);
       alertaLoginError('No se pudo conectar al servidor de autenticación.');
     }
@@ -85,6 +85,7 @@
 
   const manejarLogout = () => {
     localStorage.removeItem('authToken');
+    try { localStorage.removeItem('userEmail'); } catch (e) {}
     Toastify({ text: "¡Sesión cerrada! Vuelve pronto.", duration: 3000, offset:{x:20,y:100}, style:{ background: 'gray' }}).showToast();
     actualizarInterfazUsuario();
   };
@@ -95,10 +96,45 @@
     const token = localStorage.getItem('authToken');
     if (token) {
       if (loginNavItem) loginNavItem.style.display = 'none';
-      if (logoutNavItemLocal) logoutNavItemLocal.style.display = 'block';
+      if (logoutNavItemLocal) {
+        const userEmail = localStorage.getItem('userEmail') || '';
+        const localPart = (userEmail && userEmail.indexOf('@') > -1) ? userEmail.split('@')[0] : userEmail || 'Usuario';
+
+        // Asegurar que el nombre de usuario sea un sibling (fuera del <a>)
+        const parent = logoutNavItemLocal.parentNode;
+        if (parent) {
+          // Forzar layout en línea y centrado entre username + icon
+          parent.classList.add('d-flex', 'align-items-center', 'gap-2');
+
+          let usernameEl = parent.querySelector('.user-name-text-sibling');
+          if (!usernameEl) {
+            usernameEl = document.createElement('span');
+            // No usar `nav-link` para evitar hover/colores del link; usar texto simple
+            usernameEl.className = 'user-name-text-sibling text-dark me-2';
+            usernameEl.setAttribute('aria-hidden', 'true');
+            parent.insertBefore(usernameEl, logoutNavItemLocal);
+          }
+          usernameEl.textContent = localPart;
+        }
+
+        // Dejar el anchor solo con el icono de logout (así el hover solo aplica al icono)
+        // Mantener la clase `nav-link` en el anchor para que solo el icono tenga el comportamiento de link
+        logoutNavItemLocal.classList.add('nav-link', 'p-0');
+        logoutNavItemLocal.innerHTML = `<i class="bi bi-box-arrow-right align-middle logout-trigger" role="button" title="Cerrar sesión"></i>`;
+        logoutNavItemLocal.style.display = 'block';
+      }
     } else {
       if (loginNavItem) loginNavItem.style.display = 'block';
-      if (logoutNavItemLocal) logoutNavItemLocal.style.display = 'none';
+      if (logoutNavItemLocal) {
+        logoutNavItemLocal.style.display = 'none';
+        const parent = logoutNavItemLocal.parentNode;
+        if (parent) {
+          const usernameEl = parent.querySelector('.user-name-text-sibling');
+          if (usernameEl) usernameEl.remove();
+          parent.classList.remove('d-flex', 'align-items-center', 'gap-2');
+        }
+        logoutNavItemLocal.classList.remove('nav-link', 'p-0');
+      }
     }
   };
 
@@ -106,12 +142,66 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) loginForm.addEventListener('submit', manejarLogin);
-    if (logoutNavItem) logoutNavItem.addEventListener('click', manejarLogout);
+    if (logoutNavItem) {
+      // Escuchar clicks en el icono de logout; abrir confirmación
+      logoutNavItem.addEventListener('click', (e) => {
+        const trigger = e.target.closest && e.target.closest('.logout-trigger');
+        if (!trigger) return; // solo reaccionar si se clickeó el icono
+
+        const doConfirm = (onConfirm) => {
+          // Usar modal de Bootstrap si está disponible
+          if (typeof bootstrap !== 'undefined') {
+            // Crear modal dinámicamente
+            const modalId = 'logoutConfirmModal';
+            // Eliminar si existe uno previo
+            const existing = document.getElementById(modalId);
+            if (existing) existing.remove();
+
+            const modalHtml = `
+              <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Confirmar cierre de sesión</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>¿Desea cerrar sesión?</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="button" class="btn btn-danger" id="confirm-logout-btn">Sí, estoy seguro</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = modalHtml;
+            document.body.appendChild(wrapper.firstElementChild);
+
+            const modalEl = document.getElementById(modalId);
+            const modalInstance = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+            modalEl.addEventListener('hidden.bs.modal', () => { modalEl.remove(); });
+
+            modalEl.querySelector('#confirm-logout-btn').addEventListener('click', () => {
+              modalInstance.hide();
+              onConfirm();
+            });
+
+            modalInstance.show();
+            return;
+          }
+
+          // Fallback simple
+          if (window.confirm && window.confirm('¿Desea cerrar sesión?')) onConfirm();
+        };
+
+        doConfirm(manejarLogout);
+      });
+    }
     actualizarInterfazUsuario();
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    if (googleLoginBtn) googleLoginBtn.addEventListener('click', () => {
-      Toastify({ text: "Funcionalidad de Google Login en desarrollo. Por favor, usa el formulario clásico.", duration:3000, offset:{x:20,y:100}, style:{ background: 'blue' }}).showToast();
-    });
   });
 
 })();

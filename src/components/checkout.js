@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tarjetaValida = false;
 
+    // Si no estamos en la página de checkout (elementos no presentes), salir.
+    if (!resumenLista) return;
+
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     console.log("Datos recuperados en checkout:", carrito);
     

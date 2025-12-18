@@ -5,7 +5,6 @@
 		API_URL: "http://localhost:3000",
 		APP_NAME: "Mi E-commerce",
 		ITEMS_PER_PAGE: 10,
-		// URL para cargar datos de productos (puede ser relativo o absoluto)
 		DATA_URL: '/data/stock.json'
 	};
 

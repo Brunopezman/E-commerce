@@ -117,7 +117,6 @@
     if (localStorage.getItem('carrito')) {
         window.carrito = window.obtenerCarritoStorage() || [];
         
-        // 🚀 CAMBIO CLAVE: Solo actualizar si existen los contenedores en el DOM
         const contenedor = document.getElementById('carrito-contenedor');
         if (contenedor) {
             window.actualizarCarrito(window.carrito);
@@ -149,7 +148,7 @@
         }).showToast();
       } else {
         // Redireccionamos a la vista de checkout
-        window.location.href = 'checkout.html';
+        window.location.href = '../pages/checkout.html';
       }
     });
   }

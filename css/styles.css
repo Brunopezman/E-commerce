@@ -10,6 +10,7 @@ body {
     font-family: 'Oswald', sans-serif;
 }
 
+
 input.is-invalid {
   border-color: #dc3545;
 }
@@ -60,9 +61,16 @@ p {
 /* Estilos Navbar */
 
 .navbar-collapse {
-    display: flex;
     justify-content: flex-end;
 }
+
+
+.navbar-nav {
+    gap: 1rem;
+    align-items: center;
+}
+
+
 .navbar{
     font-size: 16px;
     top: 0;
@@ -71,30 +79,30 @@ p {
 }
 
 .navbar-light .navbar-nav .nav-link {
-    padding: 0 20px;
+    padding: 0.4rem 0.6rem;
     color: black;
-    transition: 0.3s ease;
+    transition: color 0.3s ease;
 }
+
 .navbar-light  .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:active, .navbar i:hover, .navbar i:active {
     color: rgb(245, 146, 109);
 }
 
 .navbar i {
-    font-size: 1.2rem;
-    padding: 0 8px;
+    font-size: 1.3rem;
+    padding: 0 4px;
+    vertical-align: middle;
     cursor: pointer;
-    font-weight: 500;
-    transition: 0.3s ease;
+    transition: color 0.3s ease;
 }
 
+
 #bar {
-    font-size: 1.5rem;
-    padding: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: 0.3 ease;
-    color: black;
+    font-size: 1.6rem;
+    padding: 6px;
+    transition: color 0.3s ease;
 }
+
 
 #bar:hover, #bar:active {
     color: rgb(95, 95, 95)
@@ -320,6 +328,8 @@ section div h5 {
 }
 
 /* Estilos button */
+
+
 
 button {
     font-size: 0.8rem;
