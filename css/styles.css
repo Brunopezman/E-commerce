@@ -10,6 +10,11 @@ body {
     font-family: 'Oswald', sans-serif;
 }
 
+input.is-invalid {
+  border-color: #dc3545;
+}
+
+
 /* Estilos h */
 
 h1 {
@@ -439,6 +444,19 @@ hr {
     color: goldenrod;
 }
 
+/* Estilos tarjetas */
+.tarjeta-logo {
+  height: 32px;
+  opacity: 0.9;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tarjeta-logo.activa {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+
 /* Estilos footer */
 
 footer {
@@ -524,4 +542,11 @@ footer i:hover, footer i:active {
         margin: 10px;
         padding: 15px;
     }
+}
+
+@media (min-width: 768px) {
+  .order-md-2 {
+    position: sticky;
+    top: 100px;
+  }
 }

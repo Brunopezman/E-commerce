@@ -86,7 +86,7 @@
                 <ul class="list-group mb-3" id="resumen-lista">
                     </ul>
                 <li class="list-group-item d-flex justify-content-between">
-                    <span>Total (ARS)</span>
+                    <span>Total final a pagar</span>
                     <strong id="resumen-total">$0</strong>
                 </li>
             </div>
@@ -103,6 +103,15 @@
                             <label for="cc-number">Número de tarjeta</label>
                             <input type="text" class="form-control" id="cc-number" required placeholder="XXXX XXXX XXXX XXXX">
                         </div>
+                        <div id="tarjetas-logos" class="d-flex gap-2 mt-2">
+                            <img src="../img/visa.png" id="logo-visa" class="tarjeta-logo d-none" alt="Visa">
+                            <img src="../img/mastercard.png" id="logo-mastercard" class="tarjeta-logo d-none" alt="Mastercard">
+                            <img src="../img/amex.png" id="logo-amex" class="tarjeta-logo d-none" alt="American Express">
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Tarjeta seleccionada:</small>
+                            <p id="tarjeta-resumen" class="fw-bold">—</p>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -117,8 +126,26 @@
                             <label>Valor de la cuota:</label>
                             <p id="valor-cuota" class="fw-bold mt-2">$0</p>
                         </div>
+                        <div>
+                            <!-- Envío -->
+                            <li class="list-group-item">
+                                <label for="envio-select" class="form-label">Tipo de envío</label>
+                                <select class="form-select" id="envio-select">
+                                    <option value="0">Retiro en tienda (Gratis)</option>
+                                    <option value="1500">Envío estándar ($1.500)</option>
+                                    <option value="3000">Envío express ($3.000)</option>
+                                </select>
+                            </li>
+
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Envío</span>
+                                <strong id="resumen-envio">$0</strong>
+                            </li>
+                        </div>
                     </div>
-                    <button class="btn btn-dark btn-lg w-100" type="submit">Pagar Ahora</button>
+                    <div class="col">
+                        <button class="btn btn-dark btn-lg w-100" type="submit">Pagar Ahora</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -248,3 +275,4 @@
     <script src="../src/components/checkout.js"></script>
     <script src="../src/components/auth.js"></script>
 </body>
+</html>

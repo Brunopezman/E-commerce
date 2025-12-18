@@ -1,9 +1,15 @@
 // Auth module: maneja login/logout y actualización de UI
 (function(){
   // Leer configuración global si está disponible
-  const API_BASE = (typeof window !== 'undefined' && window.Config && window.Config.API_URL) ? window.Config.API_URL : '';
-  const API_LOGIN_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/login` : 'https://mis-credenciales.free.beeceptor.com/login';
-  const API_GOOGLE_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/google` : 'http://tu-servidor-backend.com/api/auth/google';
+  const API_BASE = (typeof window !== 'undefined' && window.Config && window.Config.API_URL) ? window.Config.API_URL : null;
+  // Si no hay API_BASE, dejamos el endpoint en null para forzar configuración explícita
+  const API_LOGIN_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/login` : null;
+  const API_GOOGLE_ENDPOINT = API_BASE ? `${API_BASE}/api/auth/google` : null;
+
+  // Aviso: si no hay endpoint configurado y no se usa mock, el login no funcionará.
+  if (!API_LOGIN_ENDPOINT && !(typeof window !== 'undefined' && window.Config && window.Config.USE_MOCK_AUTH)) {
+    console.warn('No API_LOGIN_ENDPOINT configurado. Define Config.API_URL (en src/config/env.js) o activa Config.USE_MOCK_AUTH para pruebas locales.');
+  }
 
   const userModalElement = document.getElementById('userModal');
   const emailInput = document.getElementById('inputEmail');
@@ -49,6 +55,11 @@
       const endpoint = useMock && mockUrl ? mockUrl : API_LOGIN_ENDPOINT;
 
       const opts = useMock ? { method: 'GET' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) };
+
+      if (!endpoint) {
+        alertaLoginError('No está configurado el endpoint de autenticación. Revisa Config.API_URL o activa USE_MOCK_AUTH.');
+        return;
+      }
 
       const response = await fetch(endpoint, opts);
       const data = await response.json();
