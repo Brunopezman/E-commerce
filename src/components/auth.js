@@ -53,12 +53,18 @@
       const mockUrl = (typeof window !== 'undefined' && window.Config && window.Config.MOCK_AUTH_URL) ? window.Config.MOCK_AUTH_URL : null;
       const endpoint = useMock && mockUrl ? mockUrl : API_LOGIN_ENDPOINT;
 
-      const opts = useMock ? { method: 'GET' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) };
-
-      if (!endpoint) {
-        alertaLoginError('No está configurado el endpoint de autenticación. Revisa Config.API_URL o activa USE_MOCK_AUTH.');
+      // Modo demostrativo: si USE_MOCK_AUTH está activado o no hay endpoint configurado,
+      // permitir el login con cualquier email (sin validación real) — útil para GitHub Pages.
+      if (useMock || !API_LOGIN_ENDPOINT) {
+        try { localStorage.setItem('authToken', 'demo-token'); } catch (e) {}
+        try { localStorage.setItem('userEmail', email); } catch (e) {}
+        alertaLoginExitoso(email);
+        cerrarModalUsuario(); form.reset();
+        actualizarInterfazUsuario();
         return;
       }
+
+      const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) };
 
       const response = await fetch(endpoint, opts);
 
