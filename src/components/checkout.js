@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoVisa = document.getElementById('logo-visa');
     const logoMaster = document.getElementById('logo-mastercard');
     const logoAmex = document.getElementById('logo-amex');
+    const envioSelect = document.getElementById('envio-select');
+    const contenedorDireccion = document.getElementById('contenedor-direccion');
+    const inputDireccion = document.getElementById('direccion-envio');
 
     let tarjetaValida = false;
 
@@ -138,32 +141,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     });
 
-    btnDescargar.addEventListener('click', () => {
-        const nroTarjeta = inputTarjeta.value;
-        const nombreTitular = document.getElementById('cc-name').value;
-        
-        const contenidoComprobante = `
-            ====================================
-            COMPROBANTE DE PAGO - RMR
-            ====================================
-            Fecha: ${new Date().toLocaleString()}
-            Cliente: ${nombreTitular}
-            Email: ${userEmail}
-            Tarjeta: **** **** **** ${nroTarjeta.slice(-4)}
-            ------------------------------------
-            Total Pagado: ${resumenTotal.innerText}
-            ------------------------------------
-            ¡Gracias por su compra!
-            ====================================
-        `;
+    envioSelect.addEventListener('change', () => {
+        const valorSeleccionado = envioSelect.value;
 
-        const blob = new Blob([contenidoComprobante], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Comprobante_RMR_${Date.now()}.txt`;
-        a.click();
+        // Si el valor es mayor a 0 (Envío estándar o express)
+        if (valorSeleccionado !== "0") {
+            contenedorDireccion.classList.remove('d-none'); // Mostrar
+            inputDireccion.setAttribute('required', 'true'); // Hacerlo obligatorio
+        } else {
+            contenedorDireccion.classList.add('d-none'); // Ocultar
+            inputDireccion.removeAttribute('required');  // Quitar obligatoriedad
+            inputDireccion.value = ""; // Limpiar el campo
+        }
     });
+
+    btnDescargar.addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        const nroTarjeta = inputTarjeta.value.replace(/\D/g, '');
+        const nombreTitular = document.getElementById('cc-name').value;
+        const direccion = document.getElementById('envio-select')
+            ? document.getElementById('envio-select').selectedOptions[0].text
+            : 'No especificada';
+        const productos = carrito.map(prod =>
+            `- ${prod.nombre} x${prod.cantidad} $${(prod.precio * prod.cantidad).toFixed(2)}`
+        );
+
+        let y = 20;
+
+        pdf.setFont('courier', 'normal'); // fuente monoespaciada (clave)
+        pdf.setFontSize(11);
+
+        pdf.text('COMPROBANTE DE PAGO - RMR', 20, y); y += 10;
+        pdf.text(`Fecha: ${new Date().toLocaleString()}`, 20, y); y += 8;
+        pdf.text(`Cliente: ${nombreTitular}`, 20, y); y += 8;
+        pdf.text(`Email: ${userEmail}`, 20, y); y += 8;
+        pdf.text(`Tarjeta: **** **** **** ${nroTarjeta.slice(-4)}`, 20, y); y += 8;
+        pdf.text(`Dirección de entrega: ${direccion}`, 20, y); y += 10;
+
+        pdf.text('Detalle de productos:', 20, y); y += 8;
+
+        productos.forEach(prod => {
+            pdf.text(prod, 20, y);
+            y += 7;
+
+            // Salto de página automático
+            if (y > 270) {
+                pdf.addPage();
+                y = 20;
+            }
+        });
+
+        y += 5;
+        pdf.text('------------------------------------', 20, y); y += 8;
+        pdf.text(`Total Pagado: ${resumenTotal.innerText}`, 20, y); y += 10;
+        pdf.text('¡Gracias por su compra!', 20, y);
+
+        pdf.save(`Comprobante_RMR_${Date.now()}.pdf`);
+    });
+
 
     const ocultarLogos = () => {
         [logoVisa, logoMaster, logoAmex].forEach(logo => {
