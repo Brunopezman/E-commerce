@@ -1,4 +1,4 @@
-// Modal (con defensas para elementos opcionales)
+// Modal carrito
 document.addEventListener('DOMContentLoaded', () => {
     const modalContenedor = document.querySelector('.modal-contenedor');
     const abrirCarrito = document.getElementById('tienda');
