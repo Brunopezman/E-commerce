@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Referencias a elementos del DOM
     const resumenLista = document.getElementById('resumen-lista');
     const resumenTotal = document.getElementById('resumen-total');
     const cuotasSelect = document.getElementById('cuotas-select');
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tarjetaValida = false;
 
-    // Si no estamos en la página de checkout (elementos no presentes), salir.
     if (!resumenLista) return;
 
     const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -79,13 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalConInteres = totalBase * factorInteres;
 
-        // calcularEnvio se encarga de actualizar resumenTotal y valor de cuota
         calcularEnvio(totalConInteres, cuotas);
     };
 
     cuotasSelect.addEventListener('change', actualizarCalculoCuotas);
-    actualizarCalculoCuotas(); // Cálculo inicial
-    // Recalcular cuando cambie el tipo de envío
+    actualizarCalculoCuotas();
     const envioSelectEl = document.getElementById('envio-select');
     if (envioSelectEl) envioSelectEl.addEventListener('change', () => calcularEnvio(totalConInteres, currentCuotas));
 
