@@ -40,6 +40,7 @@ CSS. Ver skill `coding-standards` para estructura de carpetas y convenciones det
 - Todo cambio de comportamiento visible (no solo refactor) requiere un test nuevo o
   actualizado en la misma tarea.
 - No borrar código sin antes confirmar con `auditor` o `qa-tester` que no rompe nada.
+- Antes de commitear, mostrar el commit para que el usuario habilite a hacerlo.
 
 ## Arquitectura actual (pre-migración)
 

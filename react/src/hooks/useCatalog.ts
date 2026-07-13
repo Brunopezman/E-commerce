@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Product } from '../types/product';
-import { fetchProducts, filterByCategory, searchByName } from '../services/productService';
+import { fetchProducts, filterByCategory, searchByName, PRODUCTS_API_URL } from '../services/productService';
 
-const DEFAULT_DATA_URL = '/data/stock.json';
+const DEFAULT_DATA_URL = PRODUCTS_API_URL;
 
 interface UseCatalogReturn {
   products: Product[];

@@ -12,6 +12,8 @@ build/
 
 # TypeScript
 *.tsbuildinfo
+vite.config.d.ts
+vite.config.js
 
 # Env / secretos
 .env
@@ -39,3 +41,4 @@ npm-debug.log*
 
 # opencode (estado local, no compartir entre máquinas)
 .opencode/state/
+server/data/

@@ -1,10 +1,18 @@
 import type { Product } from '../types/product';
 
 /**
- * Fetch products from a JSON URL.
+ * Base URL for the products API.
+ * Change this to the real backend URL in Paso B.
+ */
+export const PRODUCTS_API_URL = 'http://localhost:3001/products';
+
+/**
+ * Fetch products from a URL (defaults to PRODUCTS_API_URL).
  * Returns empty array on failure (matches vanilla behavior).
  */
-export async function fetchProducts(url: string): Promise<Product[]> {
+export async function fetchProducts(
+  url: string = PRODUCTS_API_URL,
+): Promise<Product[]> {
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
