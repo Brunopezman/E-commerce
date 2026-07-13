@@ -1,11 +1,13 @@
+import { useState, useContext } from 'react';
 import { useCatalog } from './hooks/useCatalog';
 import { ProductGrid } from './components/catalog/ProductGrid';
+import { CartModal } from './components/cart/CartModal';
 import { CartProvider, CartContext } from './context/CartContext';
-import { useContext } from 'react';
 
 function AppContent() {
   const { products, loading, error } = useCatalog();
   const { addToCart, itemCount } = useContext(CartContext)!;
+  const [cartOpen, setCartOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -17,7 +19,12 @@ function AppContent() {
               Rock Merch & Roll
             </h1>
             <div className="flex items-center gap-4">
-              <span className="relative">
+              <button
+                id="tienda"
+                className="relative bg-transparent border-0 cursor-pointer"
+                onClick={() => setCartOpen(true)}
+                aria-label="Abrir carrito"
+              >
                 <i className="bx bxs-shopping-bag text-2xl" />
                 <span
                   id="contador-carrito"
@@ -25,7 +32,7 @@ function AppContent() {
                 >
                   {itemCount}
                 </span>
-              </span>
+              </button>
             </div>
           </div>
         </div>
@@ -71,6 +78,9 @@ function AppContent() {
           <p>Rock Merch & Roll &copy; 2022. Todos los derechos reservados.</p>
         </div>
       </footer>
+
+      {/* Cart Modal */}
+      <CartModal isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );
 }
