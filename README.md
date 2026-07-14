@@ -1,6 +1,6 @@
 # 🛒 Rock Merch & Roll – E-commerce
 
-E-commerce de merchandising de bandas de rock. Construido con React 18, TypeScript, Vite y Tailwind CSS. Incluye mock API con json-server y backend real con Express + SQLite.
+E-commerce de merchandising de bandas de rock. Construido con React 18, TypeScript, Vite y Tailwind CSS. Incluye mock API con json-server, backend real con Express + SQLite y un asistente de compras conversacional (Shopping Concierge).
 
 ---
 
@@ -39,6 +39,7 @@ E-commerce de merchandising de bandas de rock. Construido con React 18, TypeScri
 │   │   ├── auth/LoginModal.tsx
 │   │   ├── cart/CartModal.tsx, CartItemRow.tsx
 │   │   ├── catalog/ProductGrid.tsx
+│   │   ├── chat/ShoppingConcierge.tsx
 │   │   ├── checkout/CheckoutPage.tsx
 │   │   └── ui/ProductCard.tsx, Toast.tsx
 │   ├── context/
@@ -47,12 +48,14 @@ E-commerce de merchandising de bandas de rock. Construido con React 18, TypeScri
 │   ├── hooks/
 │   │   ├── useAuth.ts
 │   │   ├── useCart.ts
-│   │   └── useCatalog.ts
+│   │   ├── useCatalog.ts
+│   │   └── useConcierge.ts
 │   ├── services/
 │   │   ├── api.ts
 │   │   ├── authService.ts
 │   │   ├── cartService.ts
 │   │   ├── checkoutService.ts
+│   │   ├── productSearch.ts
 │   │   └── productService.ts
 │   ├── types/                 # Interfaces TypeScript
 │   └── __tests__/             # Tests unitarios
@@ -75,16 +78,35 @@ E-commerce de merchandising de bandas de rock. Construido con React 18, TypeScri
   - Vista `shop`: Header + ProductsSection + Footer
 - **Contextos**: `CartContext` (carrito + localStorage), `AuthContext` (autenticación mock)
 - **Servicios**: lógica de negocio pura (sin JSX) en `src/services/`
+- **Shopping Concierge**: chatbot de ventas embebido (FAB + panel) con búsqueda semántica TF-IDF local
 
 ### Datos
 
-Los 17 productos del catálogo están hardcodeados en `data/db.json` en formato json-server (`{ "products": [...] }`). La app React los carga desde `/data/db.json` vía `fetch`.
+Los 17 productos del catálogo están en `data/db.json` en formato json-server (`{ "products": [...] }`).
 
-Para usar la mock API: `npm run mock:api` (json-server en puerto 3001), y cambiar `BASE_URL` en `src/services/api.ts` a `http://localhost:3001`.
+---
 
-### Backend real
+## 💬 Shopping Concierge
 
-Ver `server/` — Express + TypeScript + SQLite. Las tablas se crean automáticamente. Los productos se seedan desde `data/db.json`. Arranque: `npm run server`.
+Asistente de compras conversacional embebido en la UI (FAB flotante + panel de chat).
+
+| Feature | Detalle |
+|---|---|
+| Búsqueda semántica | Índice TF-IDF local + similitud de coseno sobre nombre, descripción y tipo |
+| Filtros | Por precio máximo y categoría (remera, buzo, accesorio, vaso) |
+| Intenciones | Saludo, ayuda, búsqueda de productos, agregar al carrito |
+| Integración | Agrega productos directamente al carrito via `CartContext` |
+| Sin dependencias externas | No necesita API key ni LLM externo — funciona offline |
+| Fallback | Carga catálogo desde API real; si falla, desde `/data/db.json` |
+
+---
+
+## 🔌 Backend real (conectado por defecto)
+
+El frontend se conecta al backend real (Express + SQLite en `server/`) en puerto 4000.
+Arranque: `npm run server` — las tablas se crean automáticamente y los productos se seedan desde `data/db.json`.
+
+Para usar la mock API con json-server en su lugar: `npm run mock:api` (puerto 3001) y cambiar `BASE_URL` en `src/services/api.ts` a `http://localhost:3001`.
 
 ---
 

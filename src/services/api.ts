@@ -12,8 +12,8 @@ import type { Product } from '../types/product';
 import type { User } from '../types/user';
 import type { Order } from '../types/order';
 
-/** Base URL for all API calls — swap this in Paso B */
-export const BASE_URL = 'http://localhost:3001';
+/** Base URL for all API calls */
+export const BASE_URL = 'http://localhost:4000';
 
 // ──────────────────────────────────────────────
 //  Products

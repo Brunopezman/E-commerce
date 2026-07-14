@@ -6,22 +6,19 @@ Este archivo lo lee todo agente/subagente de opencode antes de trabajar. Contien
 
 E-commerce de merchandising de rock. **Stack actual:** React 18+, TypeScript (`strict: true`), Vite, Tailwind CSS. Sin backend en producción: los datos viven en `data/db.json` y se cargan vía `fetch`. El proyecto incluye mock API (json-server) y backend real (Express + SQLite en `server/`).
 
-## Estado de las fases
-
-| Fase | Estado |
-|---|---|
-| **Fase 1 — Diagnóstico** | ✅ Completa (mapa de dependencias, deuda técnica, tests de caracterización) |
-| **Fase 2 — Migración a React** | ✅ Completa (React 18 + TS + Vite + Tailwind) |
-| **Fase 3 — Datos** | ✅ Parcial (mock API lista en `data/db.json`, backend real en `server/`) |
-| **Fase 4 — Producto/IA** | ✅ Parcial (shopping-concierge implementado, conversion-optimizer descartado) |
+Estado del proyecto: migrado a React+TS+Vite+Tailwind. Ver `docs/archive/fases-history.md` para historial completo de fases.
 
 ## Convenciones de código
 
 - Componentes funcionales, lógica de negocio en hooks/`services/`, nunca mezclada con JSX.
 - TypeScript `strict: true`, sin `any`.
 - Ver skill `coding-standards` para estructura de carpetas y naming detallado.
+
+## Proceso de tareas
+
 - Todo cambio de comportamiento visible (no solo refactor) requiere un test nuevo o actualizado en la misma tarea.
-- **Todos los commits deben ser aprobados por el usuario antes de ser ejecutados.** Mostrar siempre el plan de commit (archivos + mensaje) y esperar confirmación.
+- Todo plan debe incluir criterios de aceptación en formato falsable (Given/When/Then o checklist). El cierre de tarea debe mapear cada CA → test que lo cubre.
+- Todos los commits deben ser aprobados por el usuario antes de ser ejecutados (ver también "Reglas de seguridad").
 
 ## Arquitectura actual
 
@@ -34,27 +31,7 @@ E-commerce de merchandising de rock. **Stack actual:** React 18+, TypeScript (`s
   - `shop`: Header + ProductsSection + Footer
 - **Estado global**: React Context (`CartContext`, `AuthContext`) + persistencia en `localStorage`.
 
-### Árbol de componentes
-
-```
-App
-├── AuthProvider
-│   └── CartProvider
-│       └── AppContent
-│           └── Router
-│               ├── [path=/checkout] CheckoutPage
-│               └── ShopPage
-│                   ├── Header
-│                   │   ├── CartModal
-│                   │   └── LoginModal
-│                   ├── HeroSection (solo view=home)
-│                   ├── BannerServices (solo view=home)
-│                   ├── BrandSection (solo view=home)
-│                   └── ProductsSection (solo view=shop)
-│                       └── ProductGrid
-│                           └── ProductCard[]
-└── Footer
-```
+> Árbol de componentes referencial en `docs/architecture/component-tree.md` (puede no estar 100% actualizado — confirmar con `src/`).
 
 ### Servicios (lógica pura, sin JSX)
 

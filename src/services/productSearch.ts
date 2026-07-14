@@ -296,14 +296,34 @@ export function getProductById(
 
 /**
  * Search by exact name match (partial, case-insensitive).
+ * Falls back to token-level matching: if the full query doesn't match,
+ * tries matching individual query words after filtering noise tokens.
  */
 export function searchByName(
   name: string,
   products: Product[],
 ): Product[] {
   const q = name.toLowerCase().trim();
-  return products.filter((p) => {
+  const exact = products.filter((p) => {
     const pName = (p.nombre ?? p.name ?? '').toLowerCase();
     return pName.includes(q);
+  });
+  if (exact.length > 0) return exact;
+
+  // Token-level fallback: filter noise words, match any remaining token
+  const noiseWords = new Set([
+    'al', 'en', 'el', 'la', 'lo', 'las', 'los', 'un', 'una', 'carrito',
+    'por', 'favor', 'gracias', 'para', 'del', 'con', 'que', 'como',
+  ]);
+
+  const tokens = q
+    .split(/\s+/)
+    .filter((t) => t.length > 1 && !noiseWords.has(t));
+
+  if (tokens.length === 0) return [];
+
+  return products.filter((p) => {
+    const pName = (p.nombre ?? p.name ?? '').toLowerCase();
+    return tokens.some((token) => pName.includes(token));
   });
 }

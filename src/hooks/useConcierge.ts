@@ -10,7 +10,7 @@
  * La respuesta del concierge se construye sin LLM externo, usando
  * plantillas y búsqueda semántica local (TF-IDF + cosine similarity).
  *
- * Carga de datos: primero intenta la mock API (json-server). Si falla,
+ * Carga de datos: primero intenta la API (backend real en puerto 4000). Si falla,
  * cae a /data/db.json (servido por Vite). Si ambos fallan, habilita el
  * chat igual con un mensaje de error amigable.
  */
@@ -47,10 +47,10 @@ async function fetchFallbackProducts(): Promise<Product[] | null> {
  * Tries: mock API → /data/db.json fallback.
  */
 async function loadProductsWithFallback(): Promise<Product[]> {
-  // Try 1: mock API (with 5s timeout)
+  // Try 1: API (with 2s timeout)
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
 
     const res = await fetch(PRODUCTS_API_URL, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -63,7 +63,7 @@ async function loadProductsWithFallback(): Promise<Product[]> {
     // API unavailable — continue to fallback
   }
 
-  // Try 2: /data/db.json served by Vite
+  // Try 2: /data/db.json served by Vite (from public/data/db.json)
   const fallback = await fetchFallbackProducts();
   if (fallback && fallback.length > 0) return fallback;
 
@@ -141,7 +141,10 @@ function parseIntent(text: string): ParsedIntent {
     /(?:agreg[áa]|añad[íi]|pon[eé]|compr[áa]|quiero\s+(?:comprar|el|la|un|una))\s+(.*?)(?:\s+(?:al|en\s+el)\s+carrito)?$/i,
   );
   if (addMatch) {
-    const productName = addMatch[1].trim();
+    let productName = addMatch[1].trim();
+    // Strip trailing "al carrito" / "en el carrito" — the optional group above
+    // may not always consume it due to lazy *? + optional suffix ambiguity.
+    productName = productName.replace(/\s+(?:al|en\s+el)\s+carrito$/i, '').trim();
     if (productName && productName.length > 2) {
       return {
         query: productName,
@@ -250,36 +253,25 @@ export function useConcierge(addToCartFn: (product: Product) => void): UseConcie
   const [isTyping, setIsTyping] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [catalogLoaded, setCatalogLoaded] = useState(false);
-  const initializedRef = useRef(false);
-  const mountedRef = useRef(true);
+  const mountedRef = useRef(false);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      initializedRef.current = false; // allow re-init on StrictMode remount
-      if (typingTimerRef.current) {
-        clearTimeout(typingTimerRef.current);
-      }
-    };
-  }, []);
-
-  // Safety net: force catalogLoaded after 8s no matter what
+  // Safety net: force catalogLoaded after 4s no matter what
   useEffect(() => {
     const safetyTimer = setTimeout(() => {
       if (!catalogLoaded) {
-        console.warn('useConcierge: safety net — forcing catalogLoaded after 8s');
+        console.warn('useConcierge: safety net — forcing catalogLoaded after 4s');
         setCatalogLoaded(true);
       }
-    }, 8000);
+    }, 4000);
     return () => clearTimeout(safetyTimer);
   }, [catalogLoaded]);
 
-  // Load catalog and build search index on mount
+  // Load catalog and build search index on mount.
+  // Handles React StrictMode double-mount: the effect runs, gets cleaned up (mountedRef=false),
+  // then re-runs. The async loadCatalog checks mountedRef and only sets state if still mounted.
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
+    mountedRef.current = true;
 
     async function loadCatalog() {
       const data = await loadProductsWithFallback();
@@ -299,6 +291,13 @@ export function useConcierge(addToCartFn: (product: Product) => void): UseConcie
     }
 
     loadCatalog();
+
+    return () => {
+      mountedRef.current = false;
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+      }
+    };
   }, []);
 
   // Welcome message when chat is first opened
@@ -402,6 +401,18 @@ export function useConcierge(addToCartFn: (product: Product) => void): UseConcie
 
           case 'add_to_cart': {
             const productName = intent.productName ?? text;
+
+            if (products.length === 0) {
+              response = {
+                id: nextId(),
+                role: 'assistant',
+                text:
+                  'El catálogo aún no se ha cargado. Esperá un momento y volvé a intentar, o navegá los productos desde la sección "Productos".',
+                timestamp: Date.now(),
+              };
+              break;
+            }
+
             const found = searchByName(productName, products);
 
             if (found.length === 0) {
