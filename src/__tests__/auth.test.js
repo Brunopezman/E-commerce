@@ -1,20 +1,8 @@
-/**
- * Tests de caracterización: Auth module (auth.js)
- *
- * Describe el comportamiento ACTUAL del módulo de autenticación.
- * El módulo usa DOM (formulario de login, modales), localStorage,
- * y Toastify. Mockeamos esas dependencias.
- *
- * Comportamiento actual (con USE_MOCK_AUTH activado en Config):
- * - Login exitoso guarda authToken y userEmail en localStorage
- * - Login sin credenciales muestra error (no lanza excepción)
- */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { login, loadAuthState, saveAuthState, clearAuthState } from '../services/authService';
 
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+// ─── Mock localStorage ─────────────────────────────────────────────────
 
-// ─── Mocks globales ──────────────────────────────────────────────────────
-
-// Mock localStorage
 const mockLocalStorage = (() => {
   let store = {};
   return {
@@ -32,122 +20,82 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 });
 
-// Mock Toastify
-globalThis.Toastify = vi.fn(() => ({
-  showToast: vi.fn(),
-}));
-
-// Mock bootstrap global (usado por cerrarModalUsuario)
-globalThis.bootstrap = {
-  Modal: {
-    getInstance: vi.fn(() => ({
-      hide: vi.fn(),
-    })),
-  },
-};
-
-// Configuración mock: USE_MOCK_AUTH activado
-globalThis.Config = {
-  API_URL: 'http://localhost:3000',
-  USE_MOCK_AUTH: true,
-  MOCK_AUTH_URL: '/mocks/login.json',
-};
-
-// ─── Setup DOM ────────────────────────────────────────────────────────────
-
-function setupAuthDOM() {
-  document.body.innerHTML = `
-    <form id="loginForm">
-      <input type="email" id="inputEmail" />
-      <input type="password" id="inputPassword" />
-      <button type="submit">Iniciar Sesión</button>
-    </form>
-    <div id="userModal" class="modal fade"></div>
-    <div id="auth-ui-container">
-      <a id="login-nav-item" href="#" style="display: block;"><i class="bx bx-user"></i></a>
-      <a id="logout-nav-item" href="#" style="display: none;">
-        <i class="bx bx-log-out align-middle me-1"></i> Cerrar Sesión
-      </a>
-    </div>
-  `;
-}
-
-// ─── Tests ────────────────────────────────────────────────────────────────
-
-describe('Auth - manejarLogin', () => {
-  beforeAll(async () => {
-    setupAuthDOM();
-
-    // Importar auth.js de forma dinámica
-    await import('../../src/components/auth.js');
-
-    // Forzar DOMContentLoaded porque en jsdom ya se disparó antes
-    document.dispatchEvent(new Event('DOMContentLoaded'));
-  });
-
+describe('authService - login (modo mock)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLocalStorage.clear();
-
-    // Resetear inputs
-    const emailInput = document.getElementById('inputEmail');
-    const passwordInput = document.getElementById('inputPassword');
-    if (emailInput) emailInput.value = '';
-    if (passwordInput) passwordInput.value = '';
   });
 
-  it('login exitoso guarda authToken en localStorage (modo mock)', async () => {
-    const emailInput = document.getElementById('inputEmail');
-    const passwordInput = document.getElementById('inputPassword');
-    emailInput.value = 'test@example.com';
-    passwordInput.value = 'password123';
+  it('login exitoso devuelve user y token', async () => {
+    const result = await login('test@example.com', 'password123');
 
-    // Disparamos submit en el form
-    const form = document.getElementById('loginForm');
-    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-
-    // Esperar a que se procese el async manejarLogin
-    await vi.waitFor(() => {
-      const stored = mockLocalStorage._getStore();
-      expect(stored.authToken).toBeDefined();
-    });
-
-    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('authToken', expect.any(String));
-    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('userEmail', 'test@example.com');
+    expect(result.token).toBe('demo-token');
+    expect(result.user.email).toBe('test@example.com');
+    expect(result.user.name).toBe('test');
   });
 
-  it('login sin credenciales muestra error y no lanza excepción', async () => {
-    const form = document.getElementById('loginForm');
-
-    // No llenamos los inputs → validación debe fallar
-    // sin lanzar excepción
-    expect(() => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    }).not.toThrow();
-
-    // Debería haber mostrado Toastify con mensaje de error
-    await vi.waitFor(() => {
-      expect(globalThis.Toastify).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: expect.stringMatching(/Email y contraseña son obligatorios/i),
-        })
-      );
-    });
+  it('login sin email lanza error', async () => {
+    await expect(login('', 'password123')).rejects.toThrow(
+      'Email y contraseña son obligatorios.',
+    );
   });
 
-  it('login fallido no guarda token', async () => {
-    const form = document.getElementById('loginForm');
+  it('login sin password lanza error', async () => {
+    await expect(login('test@example.com', '')).rejects.toThrow(
+      'Email y contraseña son obligatorios.',
+    );
+  });
 
-    // Sin credenciales, el login no debería guardar nada
-    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  it('login sin credenciales no guarda nada en localStorage', async () => {
+    try {
+      await login('', '');
+    } catch {
+      // esperado
+    }
 
-    // Esperar a que se procese
-    await vi.waitFor(() => {
-      expect(globalThis.Toastify).toHaveBeenCalled();
-    });
-
-    // authToken no debería haberse guardado
     const store = mockLocalStorage._getStore();
     expect(store.authToken).toBeUndefined();
+    expect(store.userEmail).toBeUndefined();
+  });
+});
+
+describe('authService - save/load/clear auth state', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockLocalStorage.clear();
+  });
+
+  it('saveAuthState guarda token y email en localStorage', () => {
+    saveAuthState({ email: 'fan@test.com', name: 'Fan' }, 'test-token-123');
+
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('authToken', 'test-token-123');
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('userEmail', 'fan@test.com');
+  });
+
+  it('loadAuthState recupera estado guardado', () => {
+    mockLocalStorage.setItem('authToken', 'saved-token');
+    mockLocalStorage.setItem('userEmail', 'saved@test.com');
+
+    const state = loadAuthState();
+    expect(state.isAuthenticated).toBe(true);
+    expect(state.token).toBe('saved-token');
+    expect(state.user?.email).toBe('saved@test.com');
+  });
+
+  it('loadAuthState devuelve no autenticado si no hay datos', () => {
+    const state = loadAuthState();
+    expect(state.isAuthenticated).toBe(false);
+    expect(state.token).toBeNull();
+    expect(state.user).toBeNull();
+  });
+
+  it('clearAuthState limpia token y email', () => {
+    mockLocalStorage.setItem('authToken', 'token');
+    mockLocalStorage.setItem('userEmail', 'user@test.com');
+
+    clearAuthState();
+
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('authToken');
+    expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('userEmail');
   });
 });

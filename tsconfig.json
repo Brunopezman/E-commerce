@@ -20,8 +20,8 @@
     "allowJs": true
   },
   "include": [
-    "react/src",
-    "react/vite-env.d.ts"
-, "src/__tests__"  ],
+    "src",
+    "src/vite-env.d.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
