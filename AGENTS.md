@@ -6,7 +6,7 @@ Este archivo lo lee todo agente/subagente de opencode antes de trabajar. Contien
 
 E-commerce de merchandising de rock. **Stack actual:** React 18+, TypeScript (`strict: true`), Vite, Tailwind CSS. Sin backend en producción: los datos viven en `data/db.json` y se cargan vía `fetch`. El proyecto incluye mock API (json-server) y backend real (Express + SQLite en `server/`).
 
-Estado del proyecto: migrado a React+TS+Vite+Tailwind. Ver `docs/archive/fases-history.md` para historial completo de fases.
+Estado: fases 1-4 completas. Ver `docs/archive/fases-history.md` para detalle histórico.
 
 ## Convenciones de código
 
@@ -70,7 +70,7 @@ Estado del proyecto: migrado a React+TS+Vite+Tailwind. Ver `docs/archive/fases-h
 
 ## Testing
 
-- **Unitarios/integración**: Vitest + jsdom. 59 tests en 4 suites.
+- **Unitarios/integración**: Vitest + jsdom. 70 tests en 5 suites.
   - `npm test` — ejecuta todos.
   - `npm run test:watch` — modo watch.
 - **E2E**: Playwright. 14 tests en 4 suites.
@@ -82,8 +82,7 @@ Estado del proyecto: migrado a React+TS+Vite+Tailwind. Ver `docs/archive/fases-h
 - `docs/architecture/` — mapas de dependencias, decisiones de arquitectura (ADRs).
 - `docs/reports/auditor/` — reportes de deuda técnica.
 - `docs/reports/qa/` — cobertura, tests agregados, flakiness.
-- `docs/reports/conversion/` — hallazgos de copy/UX y experimentos.
-- `docs/archive/` — documentación de fases anteriores (histórico).
+- `docs/archive/` — documentación de fases anteriores e histórico de agentes.
 
 ## Reglas de seguridad
 
@@ -95,7 +94,5 @@ Estado del proyecto: migrado a React+TS+Vite+Tailwind. Ver `docs/archive/fases-h
 ## Skills disponibles (ver `.opencode/skill/`)
 
 - `testing-workflow` — configuración y ejecución de Vitest/Playwright.
-- `refactor-tandem` — protocolo de refactor-y-testear paso a paso.
-- `api-mock-transition` — migrar de arrays hardcodeados a json-server/MSW.
 - `rag-product-catalog` — indexar catálogo para shopping assistant (RAG/function calling).
 - `coding-standards` — reglas de estilo detalladas (naming, estructura de carpetas `src/`).
