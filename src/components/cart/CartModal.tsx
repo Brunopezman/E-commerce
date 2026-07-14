@@ -16,7 +16,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
       // TODO: show toastify notification
       return;
     }
-    window.location.href = '/pages/checkout.html';
+    window.location.href = '/checkout';
   };
 
   return (

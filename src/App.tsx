@@ -9,11 +9,14 @@ import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { ShoppingConcierge } from './components/chat/ShoppingConcierge';
 
-/**
- * Simple location-based router — checks if current path is /checkout.
- */
 function getPath() {
   return window.location.pathname;
+}
+
+function navigate(path: string) {
+  if (window.location.pathname === path) return;
+  window.history.pushState({}, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
 function Router({ children }: { children: React.ReactNode }) {
@@ -25,7 +28,14 @@ function Router({ children }: { children: React.ReactNode }) {
     getPath,
   );
 
-  return pathname.includes('/checkout') ? <CheckoutPage /> : <>{children}</>;
+  return pathname.includes('/checkout') ? (
+    <>
+      <Header onNavigate={(v) => navigate(v === 'shop' ? '/shop' : '/')} />
+      <CheckoutPage />
+    </>
+  ) : (
+    <>{children}</>
+  );
 }
 
 function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => void }) {
@@ -39,7 +49,12 @@ function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => void })
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-md sticky top-0 left-0 z-40" style={{ boxShadow: '0 5px 10px rgba(0, 0, 0, 0.1)' }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 font-display" id="title">
+            <h1
+              className="text-2xl font-bold tracking-tight text-gray-900 font-display flex items-center gap-2 cursor-pointer"
+              id="title"
+              onClick={() => onNavigate('home')}
+            >
+              <img src="/img/favicon.ico" alt="Rock Merch & Roll" className="h-8 w-8" />
               Rock Merch & Roll
             </h1>
 
@@ -62,7 +77,10 @@ function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => void })
                 <li className="nav-item">
                   <button
                     className="nav-link px-2 py-1 text-black no-underline transition-colors duration-300 hover:text-coral text-base bg-transparent border-0 cursor-pointer"
-                    onClick={() => onNavigate('home')}
+                    onClick={() => {
+                      document.getElementById('navbarNav')?.classList.add('hidden');
+                      onNavigate('home');
+                    }}
                   >
                     Inicio
                   </button>
@@ -70,7 +88,10 @@ function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => void })
                 <li className="nav-item">
                   <button
                     className="nav-link px-2 py-1 text-black no-underline transition-colors duration-300 hover:text-coral text-base bg-transparent border-0 cursor-pointer"
-                    onClick={() => onNavigate('shop')}
+                    onClick={() => {
+                      document.getElementById('navbarNav')?.classList.add('hidden');
+                      onNavigate('shop');
+                    }}
                   >
                     Productos
                   </button>
@@ -78,7 +99,10 @@ function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => void })
                 <li className="nav-item">
                   <button
                     className="nav-link px-2 py-1 text-black no-underline transition-colors duration-300 hover:text-coral text-base bg-transparent border-0 cursor-pointer"
-                    onClick={() => onNavigate('home')}
+                    onClick={() => {
+                      document.getElementById('navbarNav')?.classList.add('hidden');
+                      onNavigate('home');
+                    }}
                   >
                     Contacto
                   </button>
@@ -383,7 +407,9 @@ function Footer() {
 }
 
 function ShopPage() {
-  const [view, setView] = useState<'home' | 'shop'>('home');
+  const [view, setView] = useState<'home' | 'shop'>(
+    window.location.pathname === '/shop' ? 'shop' : 'home'
+  );
 
   return (
     <div className="min-h-screen bg-white">

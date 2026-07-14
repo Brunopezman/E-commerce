@@ -277,19 +277,20 @@ export function CheckoutPage() {
                   onChange={(e) => handleCardInput(e.target.value)}
                 />
               </div>
-              <div id="logos" className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2">
+              <div className="col-12">
+                <div id="logos" className="flex justify-start items-center gap-2 mt-2">
                 {(['VISA', 'MASTERCARD', 'AMERICAN EXPRESS'] as const).map(
                   (brand) => (
                     <img
                       key={brand}
                       src={`/img/${brand === 'AMERICAN EXPRESS' ? 'amex' : brand.toLowerCase()}.png`}
                       id={`logo-${brand === 'AMERICAN EXPRESS' ? 'amex' : brand.toLowerCase()}`}
-                      className={`tarjeta-logo ${cardBrand === brand ? 'activa' : ''}`}
+                      className={`h-8 ${cardBrand === brand ? 'opacity-100 scale-105' : 'opacity-90'}`}
                       alt={brand}
-                      style={{ height: 32 }}
                     />
                   ),
                 )}
+              </div>
               </div>
               <div className="mb-3 mt-2">
                 <small className="text-muted">Tarjeta seleccionada:</small>
@@ -324,46 +325,48 @@ export function CheckoutPage() {
             </div>
 
             {/* Shipping */}
-            <li className="list-group-item mb-3">
-              <label htmlFor="envio-select" className="form-label font-display">
-                Tipo de envío
-              </label>
-              <select
-                className="form-select"
-                id="envio-select"
-                value={shippingType}
-                onChange={(e) => handleShippingChange(e.target.value)}
-              >
-                <option value="tienda">Retiro en tienda (Gratis)</option>
-                <option value="estandar">Envío estándar ($1.500)</option>
-                <option value="express">Envío express ($3.000)</option>
-              </select>
+            <ul className="list-group mb-3">
+              <li className="list-group-item">
+                <label htmlFor="envio-select" className="form-label font-display">
+                  Tipo de envío
+                </label>
+                <select
+                  className="form-select"
+                  id="envio-select"
+                  value={shippingType}
+                  onChange={(e) => handleShippingChange(e.target.value)}
+                >
+                  <option value="tienda">Retiro en tienda (Gratis)</option>
+                  <option value="estandar">Envío estándar ($1.500)</option>
+                  <option value="express">Envío express ($3.000)</option>
+                </select>
 
-              {shippingType !== 'tienda' && (
-                <div id="contenedor-direccion" className="mt-3">
-                  <label htmlFor="direccion-envio" className="form-label font-display">
-                    Dirección de entrega
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="direccion-envio"
-                    placeholder="Calle, Número, Piso, Localidad"
-                    required
-                    value={direccion}
-                    onChange={(e) => setDireccion(e.target.value)}
-                  />
-                  <small className="text-muted">
-                    Los envíos se realizan de 9 a 18 hs.
-                  </small>
-                </div>
-              )}
+                {shippingType !== 'tienda' && (
+                  <div id="contenedor-direccion" className="mt-3">
+                    <label htmlFor="direccion-envio" className="form-label font-display">
+                      Dirección de entrega
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="direccion-envio"
+                      placeholder="Calle, Número, Piso, Localidad"
+                      required
+                      value={direccion}
+                      onChange={(e) => setDireccion(e.target.value)}
+                    />
+                    <small className="text-muted">
+                      Los envíos se realizan de 9 a 18 hs.
+                    </small>
+                  </div>
+                )}
+              </li>
 
               <li className="list-group-item d-flex justify-content-between my-3 py-3">
                 <span className="font-display">Envío</span>
                 <strong id="resumen-envio">${envioCost.toFixed(2)}</strong>
               </li>
-            </li>
+            </ul>
 
             <div className="col mt-3">
               <button

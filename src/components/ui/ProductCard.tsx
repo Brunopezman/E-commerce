@@ -7,10 +7,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
-    <div className="product text-center col-lg-3 col-md-4 col-12 mb-4">
+    <div className="product text-center mb-4">
       <img
         id={`product-img-${product.id}`}
-        className="img-fluid mb-3 w-full h-auto object-cover"
+        className="img-fluid mb-3 w-full h-48 object-cover object-center"
         src={product.img}
         alt={product.descripcion ?? product.nombre}
       />
