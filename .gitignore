@@ -26,9 +26,6 @@ playwright-report/
 test-results/
 .vitest-cache/
 
-# json-server (Fase 3 Paso A - api mock)
-db.json.bak
-
 # Logs
 *.log
 npm-debug.log*
