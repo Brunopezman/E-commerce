@@ -10,6 +10,16 @@ import App from '../App';
 
 let mockFetchUrlCallback;
 
+// Producto de ejemplo para las pruebas de detalle
+const MOCK_PRODUCT_DETAIL = {
+  id: 1,
+  nombre: 'Remera The Beatles',
+  tipo: 'remera',
+  img: '/img/remerathebeatles.png',
+  descripcion: 'The Beatles - negra - lisa',
+  precio: 4000,
+};
+
 beforeEach(() => {
   // Mock de fetch que responde a cualquier URL con productos vacíos
   mockFetchUrlCallback = vi.fn((url) => {
@@ -17,6 +27,13 @@ beforeEach(() => {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ products: [] }),
+      });
+    }
+    // Producto individual: /products/:id
+    if (/\/products\/\d+$/.test(url)) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(MOCK_PRODUCT_DETAIL),
       });
     }
     // API: devolvemos OK con array vacío
@@ -234,5 +251,125 @@ describe('Carrito — interacción mínima desde App', () => {
     });
     // También debería mostrar que está vacío y el botón de finalizar
     expect(screen.getByText('El carrito está vacío')).toBeInTheDocument();
+  });
+});
+
+// ──────────────────────────────────────────────────────────────────────
+//  Navegación: detalle de producto vía /product/:id
+// ──────────────────────────────────────────────────────────────────────
+describe('Ruteo — /product/:id', () => {
+  it('renderiza la página de detalle de producto al navegar a /product/1', async () => {
+    // Navegar a /product/1 antes de renderizar
+    act(() => {
+      window.history.pushState({}, '', '/product/1');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    render(<App />);
+
+    // Debe mostrar el nombre del producto (que viene del fetch mockeado)
+    await waitFor(() => {
+      expect(screen.getByText('Remera The Beatles')).toBeInTheDocument();
+    });
+
+    // Debe mostrar el precio
+    await waitFor(() => {
+      expect(screen.getByText('$4.000')).toBeInTheDocument();
+    });
+
+    // Debe mostrar el selector de talle (es remera)
+    expect(
+      screen.getByRole('radiogroup', { name: 'Seleccionar talle' }),
+    ).toBeInTheDocument();
+
+    // El botón de volver debe estar presente
+    expect(
+      screen.getByLabelText('Volver a la tienda'),
+    ).toBeInTheDocument();
+  });
+
+  it('renderiza el detalle de producto para un producto diferente', async () => {
+    const otroProducto = {
+      ...MOCK_PRODUCT_DETAIL,
+      id: 14,
+      nombre: 'Gorra Nirvana',
+      tipo: 'accesorio',
+      img: '/img/gorranirvana.png',
+      precio: 1500,
+    };
+
+    // Reemplazar mock para este producto específico
+    mockFetchUrlCallback = vi.fn((url) => {
+      if (/\/products\/14$/.test(url)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(otroProducto),
+        });
+      }
+      if (url === '/data/db.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ products: [] }),
+        });
+      }
+      if (/\/products\/\d+$/.test(url)) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(MOCK_PRODUCT_DETAIL),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([]),
+      });
+    });
+    global.fetch = vi.fn().mockImplementation(mockFetchUrlCallback);
+
+    act(() => {
+      window.history.pushState({}, '', '/product/14');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Gorra Nirvana')).toBeInTheDocument();
+    });
+
+    // Si es accesorio, NO debe tener selector de talle
+    expect(
+      screen.queryByRole('radiogroup'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('navega de vuelta a /shop al hacer clic en "Volver" desde el detalle', async () => {
+    const user = userEvent.setup();
+
+    act(() => {
+      window.history.pushState({}, '', '/product/1');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    render(<App />);
+
+    // Esperar que se cargue el detalle
+    await waitFor(() => {
+      expect(screen.getByText('Remera The Beatles')).toBeInTheDocument();
+    });
+
+    // Hacer clic en Volver
+    await user.click(screen.getByLabelText('Volver a la tienda'));
+
+    // Debería mostrar la vista de shop (sección de productos con ese texto)
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Aca vas a poder observar los produtos con los mejores precios de la temporada.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    // El detalle ya no debería estar visible
+    expect(screen.queryByText('Remera The Beatles')).not.toBeInTheDocument();
   });
 });

@@ -105,3 +105,105 @@ describe('ProductCard', () => {
     expect(onAddToCart).toHaveBeenCalledWith(product2);
   });
 });
+
+// ──────────────────────────────────────────────────────────────────────
+//  ProductCard — navegación por clic (onProductClick)
+// ──────────────────────────────────────────────────────────────────────
+describe('ProductCard — onProductClick navigation', () => {
+  it('hace clic en el área del producto (role="link") y llama a onProductClick con el id', async () => {
+    const onProductClick = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <ProductCard
+        product={SAMPLE_PRODUCT}
+        onAddToCart={() => {}}
+        onProductClick={onProductClick}
+      />,
+    );
+
+    const link = screen.getByRole('link');
+    await user.click(link);
+
+    expect(onProductClick).toHaveBeenCalledTimes(1);
+    expect(onProductClick).toHaveBeenCalledWith(1);
+  });
+
+  it('hace clic en la imagen y navega (llama a onProductClick)', async () => {
+    const onProductClick = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <ProductCard
+        product={SAMPLE_PRODUCT}
+        onAddToCart={() => {}}
+        onProductClick={onProductClick}
+      />,
+    );
+
+    const img = screen.getByRole('img');
+    await user.click(img);
+
+    expect(onProductClick).toHaveBeenCalledTimes(1);
+    expect(onProductClick).toHaveBeenCalledWith(1);
+  });
+
+  it('hace clic en el nombre del producto y navega (llama a onProductClick)', async () => {
+    const onProductClick = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <ProductCard
+        product={SAMPLE_PRODUCT}
+        onAddToCart={() => {}}
+        onProductClick={onProductClick}
+      />,
+    );
+
+    const name = screen.getByText('Remera The Beatles');
+    await user.click(name);
+
+    expect(onProductClick).toHaveBeenCalledTimes(1);
+    expect(onProductClick).toHaveBeenCalledWith(1);
+  });
+
+  it('el botón "Agregar" llama a onAddToCart y NO a onProductClick', async () => {
+    const onAddToCart = vi.fn();
+    const onProductClick = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <ProductCard
+        product={SAMPLE_PRODUCT}
+        onAddToCart={onAddToCart}
+        onProductClick={onProductClick}
+      />,
+    );
+
+    const button = screen.getByRole('button');
+    await user.click(button);
+
+    // onAddToCart debe llamarse
+    expect(onAddToCart).toHaveBeenCalledTimes(1);
+    expect(onAddToCart).toHaveBeenCalledWith(SAMPLE_PRODUCT);
+
+    // onProductClick NO debe llamarse
+    expect(onProductClick).not.toHaveBeenCalled();
+  });
+
+  it('no llama a onProductClick si la prop no está definida', async () => {
+    // Si no se pasa onProductClick, el clic en el link no debe romperse
+    const user = userEvent.setup();
+
+    render(
+      <ProductCard product={SAMPLE_PRODUCT} onAddToCart={() => {}} />,
+    );
+
+    const link = screen.getByRole('link');
+    await user.click(link);
+
+    // Simplemente no debe lanzar error — no hay nada que verificar
+    // (la prop es opcional, usamos ?. en el onClick)
+    expect(link).toBeInTheDocument();
+  });
+});
