@@ -1,4 +1,4 @@
-import { useState, useContext, useSyncExternalStore } from 'react';
+import { useState, useContext, useCallback, useSyncExternalStore } from 'react';
 import { useCatalog } from './hooks/useCatalog';
 import { ProductGrid } from './components/catalog/ProductGrid';
 import { CartModal } from './components/cart/CartModal';
@@ -8,6 +8,9 @@ import { CartProvider, CartContext } from './context/CartContext';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { ShoppingConcierge } from './components/chat/ShoppingConcierge';
+import { Toast } from './components/ui/Toast';
+import { useToast } from './hooks/useToast';
+import type { Product } from './types/product';
 
 function getPath() {
   return window.location.pathname;
@@ -311,9 +314,17 @@ function BrandSection() {
   );
 }
 
-function ProductsSection() {
+function ProductsSection({ onProductAdded }: { onProductAdded?: (name: string) => void }) {
   const { products, loading, error } = useCatalog();
   const { addToCart } = useContext(CartContext)!;
+
+  const handleAddToCart = useCallback(
+    (product: Product) => {
+      addToCart(product);
+      onProductAdded?.(product.nombre);
+    },
+    [addToCart, onProductAdded],
+  );
 
   return (
     <section id="destacados" className="my-5 py-5">
@@ -327,7 +338,7 @@ function ProductsSection() {
 
       <ProductGrid
         products={products}
-        onAddToCart={addToCart}
+        onAddToCart={handleAddToCart}
         loading={loading}
         error={error}
       />
@@ -414,6 +425,7 @@ function ShopPage() {
   const [view, setView] = useState<'home' | 'shop'>(
     window.location.pathname === '/shop' ? 'shop' : 'home'
   );
+  const { toast, showToast, hideToast } = useToast();
 
   return (
     <div className="min-h-screen bg-white">
@@ -425,10 +437,13 @@ function ShopPage() {
           <BrandSection />
         </>
       ) : (
-        <ProductsSection />
+        <ProductsSection
+          onProductAdded={(name) => showToast(`${name} agregado al carrito`)}
+        />
       )}
       <Footer />
-      <ShoppingConcierge />
+      <ShoppingConcierge onShowToast={(msg) => showToast(msg)} />
+      <Toast toast={toast} onClose={hideToast} />
     </div>
   );
 }

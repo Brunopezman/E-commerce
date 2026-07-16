@@ -53,7 +53,7 @@ function ChatBubble({
         {message.products && message.products.length > 0 && (
           <div className="mt-3 space-y-2 border-t border-gray-200 pt-2">
             {message.products.map((product) => (
-              <ProductMiniCard key={product.id} product={product} />
+              <ProductMiniCard key={product.id} product={product} onShowToast={onShowToast} />
             ))}
           </div>
         )}
@@ -66,12 +66,13 @@ function ChatBubble({
 //  Product Mini Card (inline recommendation)
 // ──────────────────────────────────────────────
 
-function ProductMiniCard({ product }: { product: Product }) {
+function ProductMiniCard({ product, onShowToast }: { product: Product; onShowToast?: (msg: string) => void }) {
   const ctx = useContext(CartContext);
 
   const handleAdd = useCallback(() => {
     ctx?.addToCart(product);
-  }, [ctx, product]);
+    onShowToast?.(`${product.nombre} agregado al carrito`);
+  }, [ctx, product, onShowToast]);
 
   return (
     <div className="flex items-center gap-2 bg-white rounded-lg p-2 border border-gray-200">
@@ -115,7 +116,7 @@ function ProductMiniCard({ product }: { product: Product }) {
 //  Main Component
 // ──────────────────────────────────────────────
 
-export function ShoppingConcierge() {
+export function ShoppingConcierge({ onShowToast }: { onShowToast?: (msg: string) => void }) {
   const ctx = useContext(CartContext)!;
   const {
     messages,
@@ -124,7 +125,7 @@ export function ShoppingConcierge() {
     catalogLoaded,
     toggle,
     sendMessage,
-  } = useConcierge(ctx.addToCart);
+  } = useConcierge(ctx.addToCart, onShowToast);
 
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
