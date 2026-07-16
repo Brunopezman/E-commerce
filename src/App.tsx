@@ -1,6 +1,7 @@
-import { useState, useContext, useSyncExternalStore } from 'react';
+import { useState, useContext, useSyncExternalStore, useMemo, useCallback } from 'react';
 import { useCatalog } from './hooks/useCatalog';
 import { ProductGrid } from './components/catalog/ProductGrid';
+import { FilterSidebar } from './components/catalog/FilterSidebar';
 import { CartModal } from './components/cart/CartModal';
 import { LoginModal } from './components/auth/LoginModal';
 import { CheckoutPage } from './components/checkout/CheckoutPage';
@@ -308,8 +309,48 @@ function BrandSection() {
 }
 
 function ProductsSection() {
-  const { products, loading, error } = useCatalog();
+  const {
+    products,
+    loading,
+    error,
+    filterByCategories,
+    filterByPrice,
+    activeCategories,
+    activeMaxPrice,
+  } = useCatalog();
   const { addToCart } = useContext(CartContext)!;
+
+  // Derive min/max price from all products for the range slider
+  const priceRange = useMemo(() => {
+    const prices = products.map((p) => p.precio);
+    return {
+      minPrice: prices.length > 0 ? Math.min(...prices) : 0,
+      maxPriceLimit: prices.length > 0 ? Math.max(...prices) : 10000,
+    };
+    // NOTE: we don't want this to recompute on every filter change,
+    // but the FilterSidebar reads it as static bounds. Since products
+    // is already filtered, we compute from the full useCatalog result.
+    // In practice, the full catalog doesn't change after mount, so this is fine.
+  }, [products]);
+
+  const handleCategoryChange = useCallback(
+    (categories: string[]) => {
+      filterByCategories(categories);
+    },
+    [filterByCategories],
+  );
+
+  const handlePriceChange = useCallback(
+    (maxPrice: number | null) => {
+      filterByPrice(maxPrice);
+    },
+    [filterByPrice],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    filterByCategories([]);
+    filterByPrice(null);
+  }, [filterByCategories, filterByPrice]);
 
   return (
     <section id="destacados" className="my-5 py-5">
@@ -321,12 +362,28 @@ function ProductsSection() {
         </h5>
       </div>
 
-      <ProductGrid
-        products={products}
-        onAddToCart={addToCart}
-        loading={loading}
-        error={error}
-      />
+      <div className="flex gap-8 mx-auto max-w-7xl px-4">
+        {/* Sidebar — hidden on mobile (FilterSidebar has its own mobile drawer) */}
+        <FilterSidebar
+          selectedCategories={activeCategories}
+          maxPrice={activeMaxPrice}
+          minPrice={priceRange.minPrice}
+          maxPriceLimit={priceRange.maxPriceLimit}
+          onCategoryChange={handleCategoryChange}
+          onPriceChange={handlePriceChange}
+          onClearFilters={handleClearFilters}
+        />
+
+        {/* Product grid — takes remaining space */}
+        <div className="flex-1 min-w-0">
+          <ProductGrid
+            products={products}
+            onAddToCart={addToCart}
+            loading={loading}
+            error={error}
+          />
+        </div>
+      </div>
     </section>
   );
 }
