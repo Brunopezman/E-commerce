@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { jsPDF } from 'jspdf';
 import { useCart } from '../../hooks/useCart';
 import {
   detectCardType,
@@ -114,10 +115,6 @@ export function CheckoutPage() {
 
   // PDF download handler
   const handleDownloadPdf = useCallback(() => {
-    const { jsPDF } = window.jspdf;
-
-    if (!jsPDF) return;
-
     const pdf = new jsPDF();
     const nroTarjeta = ccNumber.replace(/\D/g, '');
     const shippingLabel =

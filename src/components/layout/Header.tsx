@@ -10,6 +10,7 @@ export function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => 
   const [cartOpen, setCartOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <>
@@ -29,21 +30,20 @@ export function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => 
               className="navbar-toggler border-none outline-none lg:hidden p-2"
               type="button"
               id="bar"
-              onClick={() => {
-                const el = document.getElementById('navbarNav');
-                if (el) el.classList.toggle('hidden');
-              }}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
             >
               <i className="bx bx-menu" />
             </button>
 
-            <div className="hidden lg:flex lg:items-center lg:gap-4" id="navbarNav">
+            <div
+              className={`${mobileMenuOpen ? 'flex' : 'hidden'} lg:flex lg:items-center lg:gap-4`}
+            >
               <ul className="flex items-center gap-4 list-none m-0 p-0">
                 <li className="nav-item">
                   <button
                     className="nav-link px-2 py-1 text-black no-underline transition-colors duration-300 hover:text-coral text-base bg-transparent border-0 cursor-pointer"
                     onClick={() => {
-                      document.getElementById('navbarNav')?.classList.add('hidden');
+                      setMobileMenuOpen(false);
                       onNavigate('home');
                     }}
                   >
@@ -54,7 +54,7 @@ export function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => 
                   <button
                     className="nav-link px-2 py-1 text-black no-underline transition-colors duration-300 hover:text-coral text-base bg-transparent border-0 cursor-pointer"
                     onClick={() => {
-                      document.getElementById('navbarNav')?.classList.add('hidden');
+                      setMobileMenuOpen(false);
                       onNavigate('shop');
                     }}
                   >
@@ -65,7 +65,7 @@ export function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => 
                   <button
                     className="nav-link px-2 py-1 text-black no-underline transition-colors duration-300 hover:text-coral text-base bg-transparent border-0 cursor-pointer"
                     onClick={() => {
-                      document.getElementById('navbarNav')?.classList.add('hidden');
+                      setMobileMenuOpen(false);
                       onNavigate('home');
                     }}
                   >
