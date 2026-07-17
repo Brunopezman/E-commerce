@@ -10,6 +10,7 @@ const USER_ADDRESS_KEY = 'userAddress';
 const USER_CODIGO_POSTAL_KEY = 'userCodigoPostal';
 const USER_SEXO_KEY = 'userSexo';
 const USER_TELEFONO_KEY = 'userTelefono';
+const USER_ROLE_KEY = 'userRole';
 
 /**
  * Attempt login with email/password.
@@ -129,10 +130,13 @@ export function loadAuthState(): AuthState {
       const sexo = localStorage.getItem(USER_SEXO_KEY) || undefined;
       const telefono = localStorage.getItem(USER_TELEFONO_KEY) || undefined;
 
+      const role = localStorage.getItem(USER_ROLE_KEY) as 'admin' | 'user' | null;
+
       const user: AuthUser = {
         ...(id ? { id: isNaN(Number(id)) ? id : Number(id) } : { id: Date.now() }),
         email,
         name,
+        ...(role ? { role } : {}),
         ...(apellido ? { apellido } : {}),
         ...(address ? { address } : {}),
         ...(codigoPostal ? { codigoPostal } : {}),
@@ -161,6 +165,9 @@ export function saveAuthState(user: AuthUser, token: string): void {
     }
     if (user.name) {
       localStorage.setItem(USER_NAME_KEY, user.name);
+    }
+    if (user.role) {
+      localStorage.setItem(USER_ROLE_KEY, user.role);
     }
     if (user.apellido) {
       localStorage.setItem(USER_APELLIDO_KEY, user.apellido);
@@ -196,6 +203,7 @@ export function clearAuthState(): void {
     localStorage.removeItem(USER_CODIGO_POSTAL_KEY);
     localStorage.removeItem(USER_SEXO_KEY);
     localStorage.removeItem(USER_TELEFONO_KEY);
+    localStorage.removeItem(USER_ROLE_KEY);
   } catch {
     // noop
   }

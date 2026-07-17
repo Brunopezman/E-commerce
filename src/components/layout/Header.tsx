@@ -72,6 +72,22 @@ export function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => 
                     Contacto
                   </button>
                 </li>
+                {isAuthenticated && user?.role === 'admin' && (
+                  <li className="nav-item">
+                    <a
+                      href="/admin"
+                      className="nav-link px-2 py-1 text-purple-700 no-underline transition-colors duration-300 hover:text-purple-500 text-base bg-transparent border-0 cursor-pointer font-semibold"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setMobileMenuOpen(false);
+                        window.history.pushState({}, '', '/admin');
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                      }}
+                    >
+                      Admin
+                    </a>
+                  </li>
+                )}
               </ul>
 
               <div className="flex items-center gap-4 ml-4">
