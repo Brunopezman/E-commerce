@@ -178,10 +178,10 @@ describe('ProductDetailPage — selector de talle', () => {
     expect(
       screen.getByRole('radiogroup', { name: 'Seleccionar talle' }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Talle S')).toBeInTheDocument();
     expect(screen.getByLabelText('Talle M')).toBeInTheDocument();
     expect(screen.getByLabelText('Talle L')).toBeInTheDocument();
     expect(screen.getByLabelText('Talle XL')).toBeInTheDocument();
+    expect(screen.getByLabelText('Talle XXL')).toBeInTheDocument();
   });
 
   it('muestra el selector de talle para buzo', () => {
@@ -239,7 +239,7 @@ describe('ProductDetailPage — selector de talle', () => {
       'aria-checked',
       'true',
     );
-    expect(screen.getByLabelText('Talle S')).toHaveAttribute(
+    expect(screen.getByLabelText('Talle XXL')).toHaveAttribute(
       'aria-checked',
       'false',
     );
@@ -264,8 +264,8 @@ describe('ProductDetailPage — selector de talle', () => {
       />,
     );
 
-    await user.click(screen.getByLabelText('Talle S'));
-    expect(screen.getByLabelText('Talle S')).toHaveAttribute(
+    await user.click(screen.getByLabelText('Talle XXL'));
+    expect(screen.getByLabelText('Talle XXL')).toHaveAttribute(
       'aria-checked',
       'true',
     );
@@ -275,7 +275,7 @@ describe('ProductDetailPage — selector de talle', () => {
       'aria-checked',
       'true',
     );
-    expect(screen.getByLabelText('Talle S')).toHaveAttribute(
+    expect(screen.getByLabelText('Talle XXL')).toHaveAttribute(
       'aria-checked',
       'false',
     );
@@ -676,7 +676,7 @@ describe('ProductDetailPage — botones deshabilitados sin talle', () => {
     expect(addBtnBefore).toBeDisabled();
 
     // Seleccionar talle
-    await user.click(screen.getByLabelText('Talle S'));
+    await user.click(screen.getByLabelText('Talle XXL'));
 
     // Después: habilitado
     const addBtnAfter = screen.getByLabelText(

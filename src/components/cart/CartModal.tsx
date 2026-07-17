@@ -39,7 +39,11 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
             <p className="text-muted text-center py-4 font-display">El carrito está vacío</p>
           ) : (
             items.map((item) => (
-              <CartItemRow key={item.id} item={item} onRemove={removeItem} />
+              <CartItemRow
+                key={`${item.id}-${item.talleSeleccionado ?? 'nosize'}`}
+                item={item}
+                onRemove={removeItem}
+              />
             ))
           )}
         </div>

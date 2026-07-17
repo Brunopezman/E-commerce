@@ -16,7 +16,7 @@ interface ProductDetailPageProps {
 /*  Constantes                                                         */
 /* ------------------------------------------------------------------ */
 
-const SIZES = ['S', 'M', 'L', 'XL'] as const;
+const DEFAULT_SIZES = ['M', 'L', 'XL', 'XXL'] as const;
 
 /** Productos que requieren selección de talle */
 const TALLED_TYPES = ['remera', 'buzo'];
@@ -37,6 +37,10 @@ export function ProductDetailPage({
 
   const needsSize = TALLED_TYPES.includes(product.tipo ?? '');
   const canSubmit = !needsSize || selectedSize !== null;
+  const sizeOptions =
+    needsSize && product.tallesDisponibles && product.tallesDisponibles.length > 0
+      ? product.tallesDisponibles
+      : DEFAULT_SIZES;
 
   const handleAddToCart = () => {
     if (!canSubmit) return;
@@ -78,7 +82,7 @@ export function ProductDetailPage({
                 <div className="h-4 bg-gray-200 animate-pulse rounded w-2/3" />
               </div>
               <div className="flex gap-3">
-                {SIZES.map((s) => (
+                {DEFAULT_SIZES.map((s) => (
                   <div key={s} className="w-12 h-12 bg-gray-200 animate-pulse rounded-full" />
                 ))}
               </div>
@@ -202,7 +206,7 @@ export function ProductDetailPage({
                   role="radiogroup"
                   aria-label="Seleccionar talle"
                 >
-                  {SIZES.map((size) => {
+                  {sizeOptions.map((size) => {
                     const isSelected = selectedSize === size;
                     return (
                       <button

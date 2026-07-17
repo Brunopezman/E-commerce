@@ -80,19 +80,15 @@ function ProductDetailRoute({ productId }: { productId: number }) {
   }, [productId]);
 
   const handleAddToCart = useCallback(
-    (p: Product, quantity: number, _size?: string) => {
-      for (let i = 0; i < quantity; i++) {
-        addToCart(p);
-      }
+    (p: Product, quantity: number, size?: string) => {
+      addToCart(p, quantity, size);
     },
     [addToCart],
   );
 
   const handleBuyNow = useCallback(
-    (p: Product, quantity: number, _size?: string) => {
-      for (let i = 0; i < quantity; i++) {
-        addToCart(p);
-      }
+    (p: Product, quantity: number, size?: string) => {
+      addToCart(p, quantity, size);
       navigate('/checkout');
     },
     [addToCart],
