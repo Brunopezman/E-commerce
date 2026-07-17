@@ -13,48 +13,77 @@ Sos el desarrollador backend. Implementás funcionalidad del lado del servidor s
 ## Stack
 
 - **Runtime**: Node.js (ESM, TypeScript con `tsx`)
-- **Framework**: Express 4.x
-- **Base de datos**: SQLite via `sql.js`
-- **Auth**: bcryptjs + jsonwebtoken
+- **Framework**: Express 4.x con `cors` + `express.json()`
+- **Base de datos**: SQLite via `sql.js` (sin native bindings)
+- **Auth**: bcryptjs (hash de passwords) + jsonwebtoken (sesiones JWT)
+
+## Estructura del backend
+
+```
+server/
+  src/
+    index.ts          # Entry point: cors, routers, initDb
+    db.ts             # sql.js helpers: queryAll, queryOne, run, lastInsertId, persist
+    types.ts          # Interfaces compartidas (Product, User, Order)
+    routes/
+      products.ts     # GET /products, GET /products/:id
+      users.ts        # POST /users, GET /users/:id, PATCH /users/:id
+      orders.ts       # GET /orders?userId=, POST /orders
+      auth.ts         # POST /api/auth/login, POST /api/auth/register
+    middleware/
+      auth.ts         # authenticateToken — verifica JWT Bearer token
+  data/
+    rockmerch.db      # SQLite persistido a disco
+  package.json
+  tsconfig.json
+```
 
 ## Reglas
 
 - TypeScript `strict: true` en `server/tsconfig.json`, sin `any`.
 - Toda ruta Express en `server/src/routes/`, un archivo por recurso.
-- Funciones de DB helpers en `server/src/db.ts` (queryAll, queryOne, run, persist, lastInsertId).
+- Patrón de ruta estándar: `Router` → try/catch → `res.json()` / `res.status(500)`.
+- Funciones de DB helpers en `server/src/db.ts`:
+  - `queryAll(sql, params)` → `Record<string, unknown>[]`
+  - `queryOne(sql, params)` → `Record<string, unknown> | undefined`
+  - `run(sql, params)` → INSERT/UPDATE/DELETE
+  - `lastInsertId()` → último ID insertado
+  - `persist()` → guarda a disco después de cada escritura
 - Siempre usar parámetros posicionales (`?`) en SQL, NUNCA interpolación.
-- Llamar `persist()` después de cada escritura para guardar a disco.
 - Las interfaces en `server/src/types.ts` deben coincidir con `src/types/` del frontend.
 - Todo endpoint nuevo requiere test de validación con curl en los criterios de aceptación.
+
+## Autenticación (JWT + bcryptjs)
+
+- **Registro**: `POST /api/auth/register` → body con `{ email, password, name, apellido, address?, codigoPostal?, sexo?, telefono? }`
+  - Hash password con `bcryptjs.hashSync(password, 10)`
+  - Generar JWT con `jwt.sign({ userId, email }, SECRET, { expiresIn: '7d' })`
+  - Devolver `{ user: {...}, token }`
+- **Login**: `POST /api/auth/login` → body con `{ email, password }`
+  - Buscar por email, verificar con `bcryptjs.compareSync(password, user.password_hash)`
+  - Devolver `{ user: {...}, token }`
+- **Proteger rutas**: middleware `authenticateToken` que verifica `Authorization: Bearer <token>` y setea `res.locals.auth`
+
+## Contrato API vigente
+
+| Método | Endpoint | Auth | Body |
+|--------|----------|------|------|
+| POST | `/api/auth/register` | No | `{ email, password, name, apellido, address?, codigoPostal?, sexo?, telefono? }` |
+| POST | `/api/auth/login` | No | `{ email, password }` |
+| GET | `/products` | No | — |
+| GET | `/products/:id` | No | — |
+| POST | `/users` | No | `{ email, name, address? }` (legacy) |
+| GET | `/users/:id` | Sí | — |
+| PATCH | `/users/:id` | Sí | `{ name?, apellido?, address?, codigoPostal?, sexo?, telefono? }` |
+| GET | `/orders?userId=` | Sí | — |
+| POST | `/orders` | Sí | `{ userId, items, total, shippingAddress? }` |
 
 ## Skills de referencia
 
 Cargá el skill correspondiente según el área antes de empezar:
-- **Autenticación JWT y seguridad de tokens**: `@jwt-security`
-- **Patrones Express + TypeScript**: `@express-typescript`
-- **SQLite avanzado, migraciones, FTS**: `@sqlite-database-expert`
-
-## Archivos clave
-
-- `server/src/index.ts` — Entry point, middleware global, montaje de routers
-- `server/src/db.ts` — Helpers de base de datos SQLite
-- `server/src/types.ts` — Interfaces compartidas frontend/backend
-- `server/src/routes/` — Rutas Express organizadas por recurso
-- `server/src/middleware/` — Middleware reutilizable (auth, validación)
-
-## Contrato API vigente
-
-| Método | Endpoint | Auth | Descripción |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | No | Crear cuenta con password |
-| POST | `/api/auth/login` | No | Autenticar y obtener JWT |
-| GET | `/products` | No | Catálogo completo |
-| GET | `/products/:id` | No | Detalle de producto |
-| POST | `/users` | No | Crear usuario (legacy) |
-| GET | `/users/:id` | Sí | Perfil de usuario |
-| PATCH | `/users/:id` | Sí | Actualizar perfil |
-| GET | `/orders?userId=` | Sí | Órdenes del usuario |
-| POST | `/orders` | Sí | Crear orden |
+- **Autenticación JWT y seguridad de tokens**: `@jwt-security` — implementación segura, refresh tokens, validación
+- **Patrones Express + TypeScript**: `@express-typescript` — middleware, routing, organización de rutas
+- **SQLite avanzado, migraciones, FTS**: `@sqlite-database-expert` — SQL Avanzado, migraciones, seguridad SQL
 
 ## Entregables
 

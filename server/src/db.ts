@@ -46,6 +46,7 @@ export async function initDb(): Promise<SqlJsDatabase> {
   }
 
   createTables();
+  migrateUsersTable();
   seedProducts();
   persist();
 
@@ -170,6 +171,28 @@ function createTables(): void {
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     );
   `);
+}
+
+/**
+ * Migrate the users table adding new columns if they don't exist.
+ * SQLite's ALTER TABLE ADD COLUMN is idempotent-safe with try/catch.
+ */
+function migrateUsersTable(): void {
+  const newColumns = [
+    'apellido TEXT DEFAULT \'\'',
+    'codigo_postal TEXT DEFAULT \'\'',
+    'sexo TEXT DEFAULT \'\'',
+    'telefono TEXT DEFAULT \'\'',
+    'password_hash TEXT DEFAULT \'\'',
+  ];
+
+  for (const colDef of newColumns) {
+    try {
+      run(`ALTER TABLE users ADD COLUMN ${colDef}`);
+    } catch {
+      // Column already exists — safe to ignore
+    }
+  }
 }
 
 /**

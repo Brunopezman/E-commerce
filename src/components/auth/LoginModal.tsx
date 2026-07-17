@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { navigate } from '../../services/router';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -8,15 +9,27 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+
+  // ── Login state ──
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const modalRef = useRef<HTMLDivElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
+  // Reset state when modal opens
+  const resetAll = useCallback(() => {
+    setLoginEmail('');
+    setLoginPassword('');
+    setLoginError(null);
+    setLoginLoading(false);
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
+    resetAll();
     const prev = document.activeElement as HTMLElement | null;
     setTimeout(() => emailInputRef.current?.focus(), 100);
 
@@ -46,30 +59,36 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       document.removeEventListener('keydown', handleKeyDown);
       prev?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, resetAll]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ── Login submit ──
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setLoginError(null);
 
-    if (!email.trim() || !password.trim()) {
-      setError('Email y contraseña son obligatorios.');
+    if (!loginEmail.trim() || !loginPassword.trim()) {
+      setLoginError('Email y contraseña son obligatorios.');
       return;
     }
 
-    setLoading(true);
+    setLoginLoading(true);
     try {
-      await login(email, password);
-      setEmail('');
-      setPassword('');
+      await login(loginEmail, loginPassword);
+      setLoginEmail('');
+      setLoginPassword('');
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión.');
+      setLoginError(err instanceof Error ? err.message : 'Error al iniciar sesión.');
     } finally {
-      setLoading(false);
+      setLoginLoading(false);
     }
+  };
+
+  const handleNavigateRegister = () => {
+    onClose();
+    navigate('/register');
   };
 
   return (
@@ -87,77 +106,79 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         role="document"
         onClick={(e) => e.stopPropagation()}
       >
-          <div className="flex items-center justify-between p-4 border-b">
-            <h5 className="text-lg font-semibold font-display" id="userModalLabel">
-              Acceso / Registro
-            </h5>
+        <div className="flex items-center justify-between p-4 border-b">
+          <h5 className="text-lg font-semibold font-display" id="userModalLabel">
+            Iniciar Sesión
+          </h5>
+          <button
+            type="button"
+            className="text-gray-400 hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none p-1"
+            aria-label="Cerrar"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="p-4">
+          <small className="text-gray-500 block mb-3">
+            * Login demostrativo (sin validación real)
+          </small>
+
+          {loginError && (
+            <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded mb-3" role="alert" aria-live="polite">
+              {loginError}
+            </div>
+          )}
+
+          <form id="loginForm" onSubmit={handleLoginSubmit}>
+            <div className="mb-4">
+              <label htmlFor="inputEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                Correo electrónico
+              </label>
+              <input
+                ref={emailInputRef}
+                type="email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral"
+                id="inputEmail"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                disabled={loginLoading}
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="inputPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña
+              </label>
+              <input
+                type="password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral"
+                id="inputPassword"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                disabled={loginLoading}
+              />
+            </div>
             <button
-              type="button"
-              className="text-gray-400 hover:text-gray-600 focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none p-1"
-              aria-label="Cerrar"
-              onClick={onClose}
+              type="submit"
+              className="w-full bg-black text-white border-none py-3 px-7 font-display uppercase font-bold text-sm transition-colors duration-300 hover:bg-coral-dark cursor-pointer rounded-lg focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none"
+              disabled={loginLoading}
             >
-              ×
+              {loginLoading ? 'Ingresando...' : 'Iniciar Sesión'}
             </button>
-          </div>
-          <div className="p-4">
-            <small className="text-gray-500 block mb-3">
-              * Login demostrativo (sin validación real)
-            </small>
+          </form>
+        </div>
 
-            {error && (
-              <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded" role="alert" aria-live="polite">
-                {error}
-              </div>
-            )}
-
-            <form id="loginForm" onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="inputEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                  Correo electrónico
-                </label>
-                <input
-                  ref={emailInputRef}
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral"
-                  id="inputEmail"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="inputPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  Contraseña
-                </label>
-                <input
-                  type="password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral"
-                  id="inputPassword"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-black text-white border-none py-3 px-7 font-display uppercase font-bold text-sm transition-colors duration-300 hover:bg-coral-dark cursor-pointer rounded-lg focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none"
-                disabled={loading}
-              >
-                {loading ? 'Ingresando...' : 'Iniciar Sesión'}
-              </button>
-            </form>
-          </div>
-          <div className="flex justify-center p-4 border-t">
-            <a
-              href="#"
-              className="text-sm text-gray-600 hover:text-coral-dark transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none no-underline"
-              onClick={onClose}
-            >
-              ¿Olvidaste tu contraseña?
-            </a>
-          </div>
+        <div className="flex justify-center p-4 border-t">
+          <button
+            type="button"
+            className="text-sm text-gray-600 hover:text-coral-dark transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none bg-transparent border-none cursor-pointer underline"
+            onClick={handleNavigateRegister}
+          >
+            ¿No tenés cuenta? Crear una
+          </button>
         </div>
       </div>
+    </div>
   );
 }

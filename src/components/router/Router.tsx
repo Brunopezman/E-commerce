@@ -3,6 +3,7 @@ import { getPath, navigate } from '../../services/router';
 import { Header } from '../layout/Header';
 import { CheckoutPage } from '../checkout/CheckoutPage';
 import { ProductDetailRoute } from './ProductDetailRoute';
+import { RegisterPage } from '../auth/RegisterPage';
 
 export function Router({ children }: { children: React.ReactNode }) {
   const pathname = useSyncExternalStore(
@@ -12,6 +13,10 @@ export function Router({ children }: { children: React.ReactNode }) {
     },
     getPath,
   );
+
+  if (pathname === '/register') {
+    return <RegisterPage />;
+  }
 
   if (pathname.includes('/checkout')) {
     return (
