@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { jsPDF } from 'jspdf';
+import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import { useToast } from '../ui/Toast';
 import {
@@ -15,13 +16,18 @@ import {
 export function CheckoutPage() {
   const { items, summary, clearCart } = useCart();
   const { showToast } = useToast();
+  const { isAuthenticated, user } = useAuth();
 
   // Form state
-  const [ccName, setCcName] = useState('');
+  const [ccName, setCcName] = useState(
+    isAuthenticated && user ? `${user.name} ${user.apellido || ''}`.trim() : ''
+  );
   const [ccNumber, setCcNumber] = useState('');
   const [cuotas, setCuotas] = useState(1);
   const [shippingType, setShippingType] = useState('tienda');
-  const [direccion, setDireccion] = useState('');
+  const [direccion, setDireccion] = useState(
+    isAuthenticated && user?.address ? user.address : ''
+  );
   const [cardBrand, setCardBrand] = useState<CardBrand>(null);
   const [tarjetaValida, setTarjetaValida] = useState(false);
   const [pagoExitoso, setPagoExitoso] = useState(false);
@@ -250,6 +256,13 @@ export function CheckoutPage() {
         <div className="col-md-8 order-md-1">
           <h4 className="mb-3 font-display">Método de Pago</h4>
           <form id="form-pago" onSubmit={handleSubmit}>
+            {isAuthenticated && user && (
+              <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded">
+                <p className="text-sm text-gray-600 mb-0">
+                  Estás comprando como: <strong>{user.email}</strong>
+                </p>
+              </div>
+            )}
             <div className="row">
               <div className="col-md-6 mb-3">
                 <label htmlFor="cc-name" className="form-label font-display">Nombre en la tarjeta</label>
