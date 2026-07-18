@@ -7,6 +7,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart, onProductClick }: ProductCardProps) {
+  const stock = product.stock ?? 0;
+  const outOfStock = stock === 0;
+  const lowStock = stock > 0 && stock <= 3;
+
   return (
     <div className="product text-center mb-4">
       <div
@@ -36,10 +40,25 @@ export function ProductCard({ product, onAddToCart, onProductClick }: ProductCar
         ))}
       </div>
       <h4 className="product-price font-display">${product.precio}</h4>
+      {outOfStock ? (
+        <span className="inline-block text-xs font-display uppercase text-red-600 font-bold tracking-wide mt-1">
+          Sin stock
+        </span>
+      ) : lowStock ? (
+        <span className="inline-block text-xs font-display text-amber-600 font-bold tracking-wide mt-1">
+          Solo quedan {stock}
+        </span>
+      ) : (
+        <span className="inline-block text-xs font-display text-green-600 font-bold tracking-wide mt-1">
+          En stock ({stock})
+        </span>
+      )}
       <button
         id={`${product.id}`}
-        className="buy-btn bx bx-cart-add bx-sm agregar text-white border-none font-bold uppercase text-sm px-7 py-3 cursor-pointer rounded"
-        onClick={() => onAddToCart(product)}
+        className={`buy-btn bx bx-cart-add bx-sm agregar text-white border-none font-bold uppercase text-sm px-7 py-3 cursor-pointer rounded ${outOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={() => !outOfStock && onAddToCart(product)}
+        disabled={outOfStock}
+        aria-label={outOfStock ? `${product.nombre} sin stock` : `Agregar ${product.nombre} al carrito`}
       />
     </div>
   );

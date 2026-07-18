@@ -3,6 +3,7 @@ import { jsPDF } from 'jspdf';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import { useToast } from '../ui/Toast';
+import { createOrder } from '../../services/api';
 import {
   detectCardType,
   validarLuhn,
@@ -86,7 +87,7 @@ export function CheckoutPage() {
 
   // Form submission
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
 
       if (!tarjetaValida) {
@@ -94,15 +95,47 @@ export function CheckoutPage() {
         return;
       }
 
+      if (!isAuthenticated || !user?.id) {
+        showToast('Debés iniciar sesión para comprar', 'error');
+        return;
+      }
+
       setSubmitting(true);
 
-      // Simulate payment processing
-      setTimeout(() => {
+      try {
+        await createOrder({
+          userId: user.id,
+          items: items.map((item) => ({
+            productId: item.id,
+            nombre: item.nombre,
+            precio: item.precio,
+            cantidad: item.cantidad,
+          })),
+          total: totalFinal,
+          shippingAddress:
+            shippingType === 'tienda' ? undefined : direccion,
+        });
+
         setPagoExitoso(true);
         clearCart();
-      }, 2000);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Error al procesar la compra';
+        showToast(message, 'error');
+        setSubmitting(false);
+      }
     },
-    [tarjetaValida, clearCart, showToast],
+    [
+      tarjetaValida,
+      isAuthenticated,
+      user,
+      items,
+      totalFinal,
+      shippingType,
+      direccion,
+      clearCart,
+      showToast,
+    ],
   );
 
   // Countdown redirect
@@ -243,7 +276,7 @@ export function CheckoutPage() {
         item.name.length > 28 ? item.name.slice(0, 26) + '..' : item.name;
       pdf.text(name, 20, y);
       pdf.text(String(item.quantity), 120, y);
-      pdf.text(`$${(item.total / item.quantity).toFixed(0)}`, 145, y);
+      pdf.text(`$${(item.subtotal / item.quantity).toFixed(0)}`, 145, y);
       pdf.text(`$${item.subtotal.toFixed(2)}`, rightMargin, y, { align: 'right' });
       y += 5;
     });

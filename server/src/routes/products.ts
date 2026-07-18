@@ -22,6 +22,7 @@ router.get('/', (_req: Request, res: Response) => {
       img: string;
       descripcion: string | null;
       precio: number;
+      stock: number;
     }>;
 
     const products = rows.map((row) => ({
@@ -31,6 +32,7 @@ router.get('/', (_req: Request, res: Response) => {
       img: row.img,
       descripcion: row.descripcion ?? undefined,
       precio: row.precio,
+      stock: row.stock,
     }));
 
     res.json(products);
@@ -52,6 +54,7 @@ router.get('/:id', (req: Request, res: Response) => {
       img: string;
       descripcion: string | null;
       precio: number;
+      stock: number;
     } | undefined;
 
     if (!row) {
@@ -66,6 +69,7 @@ router.get('/:id', (req: Request, res: Response) => {
       img: row.img,
       descripcion: row.descripcion ?? undefined,
       precio: row.precio,
+      stock: row.stock,
     };
 
     res.json(product);
