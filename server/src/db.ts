@@ -48,6 +48,7 @@ export async function initDb(): Promise<SqlJsDatabase> {
 
   createTables();
   migrateUsersTable();
+  migrateProductsTable();
   seedProducts();
   seedAdminUser();
   persist();
@@ -141,7 +142,8 @@ function createTables(): void {
       tipo        TEXT,
       img         TEXT    NOT NULL,
       descripcion TEXT,
-      precio      REAL    NOT NULL
+      precio      REAL    NOT NULL,
+      stock       INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS users (
@@ -195,6 +197,17 @@ function migrateUsersTable(): void {
     } catch {
       // Column already exists — safe to ignore
     }
+  }
+}
+
+/**
+ * Migrate products table adding stock column if missing.
+ */
+function migrateProductsTable(): void {
+  try {
+    run('ALTER TABLE products ADD COLUMN stock INTEGER NOT NULL DEFAULT 0');
+  } catch {
+    // Column already exists — safe to ignore
   }
 }
 
@@ -255,7 +268,7 @@ function seedProducts(): void {
     return;
   }
 
-  let seedData: { products: Array<{ id: number; nombre: string; tipo?: string; img: string; descripcion?: string; precio: number }> };
+  let seedData: { products: Array<{ id: number; nombre: string; tipo?: string; img: string; descripcion?: string; precio: number; stock?: number }> };
 
   try {
     const raw = fs.readFileSync(SEED_JSON_PATH, 'utf-8');
@@ -272,8 +285,8 @@ function seedProducts(): void {
 
   for (const p of seedData.products) {
     run(
-      'INSERT INTO products (id, nombre, tipo, img, descripcion, precio) VALUES (?, ?, ?, ?, ?, ?)',
-      [p.id, p.nombre, p.tipo ?? null, p.img, p.descripcion ?? null, p.precio],
+      'INSERT INTO products (id, nombre, tipo, img, descripcion, precio, stock) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [p.id, p.nombre, p.tipo ?? null, p.img, p.descripcion ?? null, p.precio, p.stock ?? 0],
     );
   }
 

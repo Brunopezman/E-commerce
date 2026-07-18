@@ -5,9 +5,9 @@ import { ProductGrid } from '../components/catalog/ProductGrid';
 
 // ─── Sample products (subset of data/db.json) ────────────────────────
 const SAMPLE_PRODUCTS = [
-  { id: 1, nombre: 'Remera The Beatles', tipo: 'remera', img: '/img/remerathebeatles.png', precio: 4000 },
-  { id: 2, nombre: 'Remera AC/DC', tipo: 'remera', img: '/img/remeraacdc.png', precio: 4000 },
-  { id: 12, nombre: 'Buzo AC/DC', tipo: 'buzo', img: '/img/buzoacdc.png', precio: 4000 },
+  { id: 1, nombre: 'Remera The Beatles', tipo: 'remera', img: '/img/remerathebeatles.png', precio: 4000, stock: 10 },
+  { id: 2, nombre: 'Remera AC/DC', tipo: 'remera', img: '/img/remeraacdc.png', precio: 4000, stock: 10 },
+  { id: 12, nombre: 'Buzo AC/DC', tipo: 'buzo', img: '/img/buzoacdc.png', precio: 4000, stock: 10 },
 ];
 
 // ──────────────────────────────────────────────────────────────────────

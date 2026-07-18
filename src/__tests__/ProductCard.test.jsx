@@ -11,6 +11,7 @@ const SAMPLE_PRODUCT = {
   img: '/img/remerathebeatles.png',
   descripcion: 'The Beatles - negra - lisa',
   precio: 4000,
+  stock: 10,
 };
 
 // ──────────────────────────────────────────────────────────────────────

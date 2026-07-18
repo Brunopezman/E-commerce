@@ -29,6 +29,7 @@ interface Product {
   img: string;
   descripcion?: string;
   precio: number;
+  stock?: number;
   cantidad?: number;
 }
 ```
@@ -42,6 +43,7 @@ interface Product {
   "img": "/img/remerathebeatles.png",
   "descripcion": "The Beatles - negra - lisa",
   "precio": 4000,
+  "stock": 10,
   "cantidad": 1
 }
 ```
