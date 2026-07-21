@@ -14,8 +14,6 @@ vi.mock('../../src/db.js', () => ({
 
 // ─── Mock contact-areas config ─────────────────────────────────────────
 
-const mockSendContactEmail = vi.fn().mockResolvedValue(undefined);
-
 vi.mock('../../src/config/contact-areas.js', () => ({
   getArea: vi.fn((slug: string) => {
     const areas: Record<string, { label: string; email: string }> = {
@@ -34,6 +32,13 @@ vi.mock('../../src/config/contact-areas.js', () => ({
     prensa: { label: 'Prensa y RRPP', email: 'prensa@rockmerch.com' },
     otros: { label: 'Otros', email: 'contacto@rockmerch.com' },
   })),
+}));
+
+// ─── Mock email service ────────────────────────────────────────────────
+
+const mockSendContactEmail = vi.fn().mockResolvedValue(undefined);
+
+vi.mock('../../src/services/emailService.js', () => ({
   sendContactEmail: (...args: unknown[]) => mockSendContactEmail(...args),
 }));
 

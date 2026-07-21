@@ -9,7 +9,8 @@
 
 import { Router, Request, Response } from 'express';
 import { run, lastInsertId, persist } from '../db.js';
-import { getArea, getAllAreas, sendContactEmail } from '../config/contact-areas.js';
+import { getArea, getAllAreas } from '../config/contact-areas.js';
+import { sendContactEmail } from '../services/emailService.js';
 
 const router = Router();
 
