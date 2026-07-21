@@ -51,4 +51,6 @@ La documentación técnica detallada se mantiene centralizada y debe usarse como
 - `react-best-practices` — Estándares React y arquitectura de componentes.
 - `performance-audit` — Web Vitals, bundle analysis, lazy loading y optimización de assets.
 - `ux-writing` — Microcopy, CTAs, tono de voz consistente en la interfaz.
-
+- `express-typescript` — Arquitectura, patrones y mejores prácticas para APIs RESTful con Express y TypeScript.
+- `jwt-security` — Auditoría e implementación segura de autenticación y autorización basada en JWT (JSON Web Tokens).
+- `sqlite-database-expert` — Diseño de esquemas, optimización de consultas, migraciones y gestión de bases de datos SQLite.
