@@ -12,6 +12,7 @@
  *   POST /orders         → Order
  */
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { initDb } from './db.js';
