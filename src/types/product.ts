@@ -6,8 +6,12 @@ export interface Product {
   img: string;
   descripcion?: string;
   precio: number;
+  /** Stock disponible en inventario */
+  stock?: number;
   /** Cantidad en carrito (solo cuando está en el carrito) */
   cantidad?: number;
+  /** Talles disponibles (remeras/buzos) */
+  tallesDisponibles?: string[];
   /** Campos alternativos que pueden venir del JSON */
   name?: string;
   category?: string;

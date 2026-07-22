@@ -12,12 +12,16 @@
  *   POST /orders         → Order
  */
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { initDb } from './db.js';
+import { isPostgresConfigured } from './config/database.js';
 import productsRouter from './routes/products.js';
 import usersRouter from './routes/users.js';
 import ordersRouter from './routes/orders.js';
+import authRouter from './routes/auth.js';
+import contactRouter from './routes/contact.js';
 
 const PORT = parseInt(process.env.PORT ?? '4000', 10);
 const app = express();
@@ -42,13 +46,19 @@ app.use(express.json());
 
 // ── Routes ─────────────────────────────────────
 
+app.use('/api/auth', authRouter);
 app.use('/products', productsRouter);
 app.use('/users', usersRouter);
 app.use('/orders', ordersRouter);
+app.use('/api/contact', contactRouter);
 
-// Health check
+// Health check — used by Render to verify the service is alive
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    db: isPostgresConfigured() ? 'postgresql' : 'sqlite',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // ── Start ───────────────────────────────────────
@@ -65,11 +75,16 @@ async function start() {
   app.listen(PORT, () => {
     console.log(`[server] Rock Merch & Roll API running on http://localhost:${PORT}`);
     console.log(`[server] Endpoints:`);
+    console.log(`  POST http://localhost:${PORT}/api/auth/register`);
+    console.log(`  POST http://localhost:${PORT}/api/auth/login`);
     console.log(`  GET  http://localhost:${PORT}/products`);
     console.log(`  GET  http://localhost:${PORT}/products/:id`);
     console.log(`  POST http://localhost:${PORT}/users`);
+    console.log(`  GET  http://localhost:${PORT}/users/:id`);
+    console.log(`  PATCH http://localhost:${PORT}/users/:id`);
     console.log(`  GET  http://localhost:${PORT}/orders?userId=:id`);
     console.log(`  POST http://localhost:${PORT}/orders`);
+    console.log(`  POST http://localhost:${PORT}/api/contact`);
     console.log(`  GET  http://localhost:${PORT}/health`);
   });
 }

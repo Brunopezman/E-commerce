@@ -4,7 +4,7 @@ test.describe('Navegación React SPA', () => {
   test('navegar de home a shop mediante botón "Productos" en navbar', async ({ page }) => {
     await page.goto('/');
 
-    await page.locator('button', { hasText: 'Productos' }).click();
+    await page.locator('nav button', { hasText: 'Productos' }).click();
 
     const productSection = page.locator('#destacados');
     await expect(productSection).toBeVisible();
@@ -14,10 +14,10 @@ test.describe('Navegación React SPA', () => {
   test('navegar de shop a home mediante botón "Inicio" en navbar', async ({ page }) => {
     await page.goto('/');
 
-    await page.locator('button', { hasText: 'Productos' }).click();
+    await page.locator('nav button', { hasText: 'Productos' }).click();
     await expect(page.locator('#destacados')).toBeVisible();
 
-    await page.locator('button', { hasText: 'Inicio' }).click();
+    await page.locator('nav button', { hasText: 'Inicio' }).click();
 
     await expect(page.locator('#home')).toBeVisible();
   });

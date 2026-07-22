@@ -71,6 +71,51 @@ describe('addToCart', () => {
     expect(items).toHaveLength(3);
     expect(items.map(p => p.id)).toEqual(['1', '2', '3']);
   });
+
+  describe('con talles', () => {
+    const REMERA = { id: '1', nombre: 'Remera The Beatles', precio: 4000, categoria: 'remera' };
+
+    it('agrega un producto con talle como item separado', () => {
+      const result = addToCart([], REMERA, 'M');
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('1');
+      expect(result[0].talleSeleccionado).toBe('M');
+      expect(result[0].cantidad).toBe(1);
+    });
+
+    it('mismo producto + mismo talle → incrementa cantidad', () => {
+      const items = [{ ...REMERA, cantidad: 1, talleSeleccionado: 'M' }];
+      const result = addToCart(items, REMERA, 'M');
+      expect(result).toHaveLength(1);
+      expect(result[0].talleSeleccionado).toBe('M');
+      expect(result[0].cantidad).toBe(2);
+    });
+
+    it('mismo producto + distinto talle → crea item separado', () => {
+      const items = [{ ...REMERA, cantidad: 1, talleSeleccionado: 'M' }];
+      const result = addToCart(items, REMERA, 'L');
+      expect(result).toHaveLength(2);
+      expect(result[0].talleSeleccionado).toBe('M');
+      expect(result[0].cantidad).toBe(1);
+      expect(result[1].talleSeleccionado).toBe('L');
+      expect(result[1].cantidad).toBe(1);
+    });
+
+    it('producto con talle y sin talle conviven por separado', () => {
+      const items = [{ ...REMERA, cantidad: 1 }]; // sin talle
+      const result = addToCart(items, REMERA, 'XL');
+      expect(result).toHaveLength(2);
+      expect(result[0].talleSeleccionado).toBeUndefined();
+      expect(result[1].talleSeleccionado).toBe('XL');
+    });
+
+    it('addToCart con quantity > 1 agrega esa cantidad de una vez', () => {
+      const result = addToCart([], REMERA, 'L', 3);
+      expect(result).toHaveLength(1);
+      expect(result[0].cantidad).toBe(3);
+      expect(result[0].talleSeleccionado).toBe('L');
+    });
+  });
 });
 
 describe('removeFromCart', () => {
@@ -123,6 +168,107 @@ describe('calculateSummary', () => {
     const summary = calculateSummary([]);
     expect(summary.totalItems).toBe(0);
     expect(summary.totalPrice).toBe(0);
+  });
+});
+
+describe('addToCart with talleSeleccionado (size) support', () => {
+  const BEATLES = { id: 1, nombre: 'Remera The Beatles', precio: 4000, categoria: 'remera' };
+
+  it('agrega producto sin talle (compatibilidad legacy)', () => {
+    const result = addToCart([], BEATLES);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe(1);
+    expect(result[0].talleSeleccionado).toBeUndefined();
+    expect(result[0].cantidad).toBe(1);
+  });
+
+  it('agrega producto con talle vía 3er parámetro', () => {
+    const result = addToCart([], BEATLES, 'M');
+    expect(result).toHaveLength(1);
+    expect(result[0].talleSeleccionado).toBe('M');
+    expect(result[0].cantidad).toBe(1);
+  });
+
+  it('mismo producto con distinto talle son items separados', () => {
+    let items = addToCart([], BEATLES, 'M');
+    items = addToCart(items, BEATLES, 'L');
+
+    expect(items).toHaveLength(2);
+    expect(items[0].talleSeleccionado).toBe('M');
+    expect(items[0].cantidad).toBe(1);
+    expect(items[1].talleSeleccionado).toBe('L');
+    expect(items[1].cantidad).toBe(1);
+  });
+
+  it('mismo producto con mismo talle incrementa cantidad', () => {
+    let items = addToCart([], BEATLES, 'M');
+    items = addToCart(items, BEATLES, 'M');
+
+    expect(items).toHaveLength(1);
+    expect(items[0].talleSeleccionado).toBe('M');
+    expect(items[0].cantidad).toBe(2);
+  });
+
+  it('mismo producto sin talle y con talle son items separados', () => {
+    let items = addToCart([], BEATLES);
+    items = addToCart(items, BEATLES, 'M');
+
+    expect(items).toHaveLength(2);
+    expect(items.filter(i => i.talleSeleccionado === undefined)).toHaveLength(1);
+    expect(items.filter(i => i.talleSeleccionado === 'M')).toHaveLength(1);
+  });
+});
+
+describe('removeFromCart (sin size — opera por productId)', () => {
+  const MOCK_ITEMS = [
+    { id: 1, nombre: 'Remera', precio: 4000, cantidad: 2, talleSeleccionado: 'M' },
+    { id: 1, nombre: 'Remera', precio: 4000, cantidad: 1, talleSeleccionado: 'L' },
+    { id: 2, nombre: 'Buzo', precio: 5000, cantidad: 1, talleSeleccionado: 'M' },
+  ];
+
+  it('elimina la primera ocurrencia del producto si cantidad es 1', () => {
+    const result = removeFromCart(MOCK_ITEMS, 1);
+    // Quita el primer item con id=1 (talleSeleccionado:'M', cantidad 2 → decrementa a 1)
+    // Como tiene cantidad 2, en realidad decrementa
+    expect(result).toHaveLength(3);
+    expect(result.find(i => i.id === 1 && i.talleSeleccionado === 'M').cantidad).toBe(1);
+  });
+
+  it('decrementa cantidad si es mayor a 1', () => {
+    const items = [
+      { id: 1, nombre: 'Remera', precio: 4000, cantidad: 3, talleSeleccionado: 'M' },
+    ];
+    const result = removeFromCart(items, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0].cantidad).toBe(2);
+  });
+
+  it('no hace nada si el producto no existe', () => {
+    const result = removeFromCart(MOCK_ITEMS, 999);
+    expect(result).toHaveLength(3);
+  });
+});
+
+describe('removeAllFromCart (sin size — elimina todos los items con ese productId)', () => {
+  it('elimina todas las ocurrencias del producto', () => {
+    const items = [
+      { id: 1, nombre: 'Remera', precio: 4000, cantidad: 2, talleSeleccionado: 'M' },
+      { id: 1, nombre: 'Remera', precio: 4000, cantidad: 1, talleSeleccionado: 'L' },
+      { id: 2, nombre: 'Buzo', precio: 5000, cantidad: 1, talleSeleccionado: 'M' },
+    ];
+    const result = removeAllFromCart(items, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe(2);
+  });
+
+  it('no elimina productos con distinto id', () => {
+    const items = [
+      { id: 1, nombre: 'Remera', precio: 4000, cantidad: 2, talleSeleccionado: 'M' },
+      { id: 2, nombre: 'Buzo', precio: 5000, cantidad: 1, talleSeleccionado: 'L' },
+    ];
+    const result = removeAllFromCart(items, 2);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe(1);
   });
 });
 

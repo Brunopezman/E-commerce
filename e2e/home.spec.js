@@ -10,8 +10,8 @@ test.describe('Página principal (React SPA)', () => {
 
   test('la navbar contiene botones de navegación', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('button', { hasText: 'Inicio' })).toBeVisible();
-    await expect(page.locator('button', { hasText: 'Productos' })).toBeVisible();
+    await expect(page.locator('nav button', { hasText: 'Inicio' })).toBeVisible();
+    await expect(page.locator('nav button', { hasText: 'Productos' })).toBeVisible();
   });
 
   test('sección banner-services visible en home', async ({ page }) => {

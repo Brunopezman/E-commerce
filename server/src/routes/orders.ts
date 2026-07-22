@@ -6,13 +6,17 @@
 
 import { Router, Request, Response } from 'express';
 import { queryAll, queryOne, run, lastInsertId, persist } from '../db.js';
+import { isPostgresConfigured } from '../config/database.js';
+import { sendOrderConfirmationEmail } from '../services/emailService.js';
+import { generateOrderPDF } from '../services/pdfService.js';
 
 /**
  * Convert SQLite datetime string to ISO 8601 format.
  * SQLite's datetime('now') returns "2026-07-13 22:10:05"
  * We need "2026-07-13T22:10:05.000Z"
  */
-function toIsoDate(sqliteDate: string): string {
+function toIsoDate(sqliteDate: string | Date): string {
+  if (sqliteDate instanceof Date) return sqliteDate.toISOString();
   if (sqliteDate.includes('T')) return sqliteDate;
   return sqliteDate.replace(' ', 'T') + '.000Z';
 }
@@ -23,7 +27,7 @@ const router = Router();
  * GET /orders?userId=:id — orders for a user
  * Returns Order[] matching the API contract.
  */
-router.get('/', (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId as string | undefined;
 
@@ -32,10 +36,10 @@ router.get('/', (req: Request, res: Response) => {
       return;
     }
 
-    const orderRows = queryAll(
+    const orderRows = (await queryAll(
       'SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC',
       [userId],
-    ) as Array<{
+    )) as Array<{
       id: number;
       user_id: number;
       total: number;
@@ -44,32 +48,34 @@ router.get('/', (req: Request, res: Response) => {
       shipping_address: string | null;
     }>;
 
-    const orders = orderRows.map((order) => {
-      const items = queryAll(
-        'SELECT * FROM order_items WHERE order_id = ?',
-        [order.id],
-      ) as Array<{
-        product_id: number;
-        nombre: string;
-        precio: number;
-        cantidad: number;
-      }>;
+    const orders = await Promise.all(
+      orderRows.map(async (order) => {
+        const items = (await queryAll(
+          'SELECT * FROM order_items WHERE order_id = ?',
+          [order.id],
+        )) as Array<{
+          product_id: number;
+          nombre: string;
+          precio: number;
+          cantidad: number;
+        }>;
 
-      return {
-        id: order.id,
-        userId: order.user_id,
-        items: items.map((item) => ({
-          productId: item.product_id,
-          nombre: item.nombre,
-          precio: item.precio,
-          cantidad: item.cantidad,
-        })),
-        total: order.total,
-        status: order.status,
-        createdAt: toIsoDate(order.created_at),
-        shippingAddress: order.shipping_address ?? undefined,
-      };
-    });
+        return {
+          id: order.id,
+          userId: order.user_id,
+          items: items.map((item) => ({
+            productId: item.product_id,
+            nombre: item.nombre,
+            precio: item.precio,
+            cantidad: item.cantidad,
+          })),
+          total: order.total,
+          status: order.status,
+          createdAt: toIsoDate(order.created_at),
+          shippingAddress: order.shipping_address ?? undefined,
+        };
+      }),
+    );
 
     res.json(orders);
   } catch (err) {
@@ -83,7 +89,7 @@ router.get('/', (req: Request, res: Response) => {
  * Request body: { userId, items, total, shippingAddress? }
  * Response: Order (with id, status, createdAt)
  */
-router.post('/', (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { userId, items, total, shippingAddress } = req.body;
 
@@ -98,32 +104,72 @@ router.post('/', (req: Request, res: Response) => {
     }
 
     // Verify user exists
-    const user = queryOne('SELECT id FROM users WHERE id = ?', [userId]);
+    const user = await queryOne('SELECT id FROM users WHERE id = ?', [userId]);
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
 
-    // Create order
-    run(
-      'INSERT INTO orders (user_id, total, shipping_address) VALUES (?, ?, ?)',
-      [userId, total, shippingAddress ?? null],
-    );
-
-    const orderId = lastInsertId();
-
-    // Insert order items
+    // Validate stock for each item
     for (const item of items) {
-      run(
+      const product = (await queryOne(
+        'SELECT stock FROM products WHERE id = ?',
+        [item.productId],
+      )) as { stock: number } | undefined;
+
+      if (!product) {
+        res.status(404).json({
+          error: `Producto ID ${item.productId} no encontrado`,
+        });
+        return;
+      }
+
+      if (product.stock < item.cantidad) {
+        res.status(400).json({
+          error: `Stock insuficiente para "${item.nombre}". Disponible: ${product.stock}, solicitado: ${item.cantidad}`,
+        });
+        return;
+      }
+    }
+
+    // Create order
+    let orderId: number;
+
+    if (isPostgresConfigured()) {
+      const result = await run(
+        'INSERT INTO orders (user_id, total, shipping_address) VALUES ($1, $2, $3) RETURNING id',
+        [userId, total, shippingAddress ?? null],
+      );
+      orderId = (result as import('pg').QueryResult).rows[0].id as number;
+    } else {
+      await run(
+        'INSERT INTO orders (user_id, total, shipping_address) VALUES (?, ?, ?)',
+        [userId, total, shippingAddress ?? null],
+      );
+
+      orderId = await lastInsertId();
+    }
+
+    // Insert order items and deduct stock
+    for (const item of items) {
+      await run(
         'INSERT INTO order_items (order_id, product_id, nombre, precio, cantidad) VALUES (?, ?, ?, ?, ?)',
         [orderId, item.productId, item.nombre, item.precio, item.cantidad],
       );
+      await run(
+        'UPDATE products SET stock = stock - ? WHERE id = ?',
+        [item.cantidad, item.productId],
+      );
     }
 
-    persist();
+    if (!isPostgresConfigured()) {
+      await persist();
+    }
 
     // Fetch the created order with items
-    const orderRow = queryOne('SELECT * FROM orders WHERE id = ?', [orderId]) as {
+    const orderRow = (await queryOne('SELECT * FROM orders WHERE id = ?', [
+      orderId,
+    ])) as {
       id: number;
       user_id: number;
       total: number;
@@ -132,17 +178,17 @@ router.post('/', (req: Request, res: Response) => {
       shipping_address: string | null;
     };
 
-    const itemRows = queryAll(
+    const itemRows = (await queryAll(
       'SELECT * FROM order_items WHERE order_id = ?',
       [orderId],
-    ) as Array<{
+    )) as Array<{
       product_id: number;
       nombre: string;
       precio: number;
       cantidad: number;
     }>;
 
-    const newOrder = {
+    const newOrder: import('../types.js').Order = {
       id: orderRow.id,
       userId: orderRow.user_id,
       items: itemRows.map((item) => ({
@@ -152,12 +198,32 @@ router.post('/', (req: Request, res: Response) => {
         cantidad: item.cantidad,
       })),
       total: orderRow.total,
-      status: orderRow.status,
+      status: orderRow.status as
+        | 'pending'
+        | 'paid'
+        | 'shipped'
+        | 'delivered'
+        | 'cancelled',
       createdAt: toIsoDate(orderRow.created_at),
       shippingAddress: orderRow.shipping_address ?? undefined,
     };
 
     res.status(201).json(newOrder);
+
+    // Fire order confirmation email with PDF (non-blocking)
+    const orderUser = (await queryOne(
+      'SELECT name, email FROM users WHERE id = ?',
+      [userId],
+    )) as { name: string; email: string } | undefined;
+    if (orderUser) {
+      generateOrderPDF(newOrder, orderUser)
+        .then((pdfBuffer) =>
+          sendOrderConfirmationEmail(newOrder, orderUser, pdfBuffer),
+        )
+        .catch((err: unknown) =>
+          console.error('[orders] Error sending confirmation email:', err),
+        );
+    }
   } catch (err) {
     console.error('[orders] Error creating order:', err);
     res.status(500).json({ error: 'Internal server error' });

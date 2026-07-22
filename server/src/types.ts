@@ -17,7 +17,12 @@ export interface User {
   id: number | string;
   email: string;
   name: string;
+  role: 'admin' | 'user';
+  apellido?: string;
   address?: string;
+  codigoPostal?: string;
+  sexo?: string;
+  telefono?: string;
   createdAt?: string;
 }
 
@@ -46,4 +51,14 @@ export interface OrderItemRow {
   nombre: string;
   precio: number;
   cantidad: number;
+}
+
+/** Contact message from the website form */
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  area: string;
+  message: string;
+  createdAt: string;
 }
