@@ -14,7 +14,7 @@ import type { AuthUser } from '../types/auth';
 import type { Order } from '../types/order';
 
 /** Base URL for all API calls */
-export const BASE_URL = 'http://localhost:4000';
+export const BASE_URL = 'https://rockmerch-api.onrender.com';
 
 // ──────────────────────────────────────────────
 //  Products
