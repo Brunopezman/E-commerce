@@ -85,6 +85,15 @@ export async function initDb(): Promise<void> {
   if (PG_ENABLED) {
     await ensurePgLoaded();
     console.log('[db] PostgreSQL mode active.');
+
+    // In CI/test, truncate all tables so migrations + seeding always run cleanly
+    if (process.env.NODE_ENV === 'test' || process.env.CI) {
+      console.log('[db] CI/test mode: truncating tables for clean state.');
+      await pgQuery!(
+        'TRUNCATE TABLE products, users, orders, order_items, contact_messages, _migrations RESTART IDENTITY CASCADE',
+      );
+    }
+
     await pgMigrations!();
     await seedProducts();
     await seedAdminUser();

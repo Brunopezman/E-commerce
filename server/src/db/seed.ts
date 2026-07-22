@@ -53,7 +53,7 @@ export async function seedProducts(): Promise<void> {
 
   for (const p of products) {
     await run(
-      'INSERT INTO products (id, nombre, tipo, img, descripcion, precio, stock) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      'INSERT INTO products (id, nombre, tipo, img, descripcion, precio, stock) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING',
       [p.id, p.nombre, p.tipo ?? null, p.img, p.descripcion ?? null, p.precio, p.stock ?? 0],
     );
   }
@@ -112,7 +112,7 @@ export async function seedAdminUser(): Promise<void> {
   const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
   const passwordHash = bcrypt.hashSync(defaultPassword, 10);
   await run(
-    "INSERT INTO users (email, name, role, password_hash) VALUES ($1, $2, $3, $4)",
+    "INSERT INTO users (email, name, role, password_hash) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING",
     [adminEmail, 'Admin', 'admin', passwordHash],
   );
   console.log(`[seed] Created admin user: ${adminEmail}`);

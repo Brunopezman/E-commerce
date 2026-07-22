@@ -79,7 +79,7 @@ test.describe('Página de Contacto', () => {
     await page.goto('/');
 
     // Hacer clic en el botón "Contacto" del navbar
-    await page.locator('button', { hasText: 'Contacto' }).click();
+    await page.locator('nav button', { hasText: 'Contacto' }).click();
 
     // Verificar que la URL cambió
     await expect(page).toHaveURL(/\/contact/);
