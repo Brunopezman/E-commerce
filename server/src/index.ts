@@ -29,11 +29,13 @@ const app = express();
 // ── Middleware ──────────────────────────────────
 
 // CORS: allow the Vercel frontend + local dev origins
-const corsOrigins: string[] = [
+const corsOrigins: (string | RegExp)[] = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
+  // Allow any *.vercel.app preview domain (for branch previews)
+  /\.vercel\.app$/,
 ];
 
 // Allow Vercel production domain from env var (set RMR_APP_URL in Render dashboard)
@@ -42,12 +44,16 @@ if (rmrAppUrl) {
   corsOrigins.push(rmrAppUrl);
 }
 
-// Allow any *.vercel.app preview domain (for branch previews)
-corsOrigins.push(/\.vercel\.app$/);
-
 app.use(
   cors({
-    origin: corsOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (server-to-server, curl, etc.)
+      if (!origin) return callback(null, true);
+      const isAllowed = corsOrigins.some((allowed) =>
+        typeof allowed === 'string' ? allowed === origin : allowed.test(origin),
+      );
+      callback(null, isAllowed);
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
