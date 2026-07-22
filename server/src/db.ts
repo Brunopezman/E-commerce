@@ -89,9 +89,19 @@ export async function initDb(): Promise<void> {
     // In CI/test, truncate all tables so migrations + seeding always run cleanly
     if (process.env.NODE_ENV === 'test' || process.env.CI) {
       console.log('[db] CI/test mode: truncating tables for clean state.');
-      await pgQuery!(
-        'TRUNCATE TABLE products, users, orders, order_items, contact_messages, _migrations RESTART IDENTITY CASCADE',
-      );
+      try {
+        await pgQuery!(
+          'TRUNCATE TABLE products, users, orders, order_items, contact_messages, _migrations RESTART IDENTITY CASCADE',
+        );
+      } catch (err: any) {
+        // If tables don't exist yet (fresh DB), ignore error SQLSTATE 42P01
+        if (err?.code === '42P01') {
+          console.log('[db] Tables do not exist yet; skipping truncate.');
+        } else {
+          // Re-throw unexpected errors
+          throw err;
+        }
+      }
     }
 
     await pgMigrations!();
