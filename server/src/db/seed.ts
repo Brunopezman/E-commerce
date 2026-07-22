@@ -14,6 +14,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { run, queryAll } from '../db.js';
+import { isPostgresConfigured } from '../config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -59,6 +60,12 @@ export async function seedProducts(): Promise<void> {
   }
 
   console.log(`[seed] Inserted ${products.length} products from data/db.json`);
+
+  // After seeding with explicit IDs, sync the PostgreSQL sequence so that
+  // subsequent INSERTs without an explicit id don't clash with seeded rows.
+  if (isPostgresConfigured()) {
+    await run("SELECT setval('products_id_seq', (SELECT MAX(id) FROM products))");
+  }
 }
 
 // ── Admin user seeding ─────────────────────────────────

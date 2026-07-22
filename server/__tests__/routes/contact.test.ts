@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// ─── Mock isPostgresConfigured → false so the contact route always takes the
+//     SQLite branch (persist + lastInsertId), regardless of DATABASE_URL env.
+vi.mock('../../src/config/database.js', () => ({
+  isPostgresConfigured: () => false,
+}));
+
 // ─── Mock db module ────────────────────────────────────────────────────
 
 const mockRun = vi.fn();

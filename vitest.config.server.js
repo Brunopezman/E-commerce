@@ -10,5 +10,9 @@ export default defineConfig({
     hookTimeout: 30_000,
     // Do not force exit — let Vitest handle cleanup naturally
     teardownTimeout: 10_000,
+    // Disable file-level parallelism to avoid race conditions with the
+    // singleton PostgreSQL pool (dual-backend + postgres-connection tests
+    // both call initDb() and would step on each other).
+    fileParallelism: false,
   },
 });
