@@ -63,10 +63,10 @@ router.get('/', async (req: Request, res: Response) => {
           items: items.map((item) => ({
             productId: item.product_id,
             nombre: item.nombre,
-            precio: item.precio,
+            precio: Number(item.precio),
             cantidad: item.cantidad,
           })),
-          total: order.total,
+          total: Number(order.total),
           status: order.status,
           createdAt: toIsoDate(order.created_at),
           shippingAddress: order.shipping_address ?? undefined,
@@ -176,10 +176,10 @@ router.post('/', async (req: Request, res: Response) => {
       items: itemRows.map((item) => ({
         productId: item.product_id,
         nombre: item.nombre,
-        precio: item.precio,
+        precio: Number(item.precio),
         cantidad: item.cantidad,
       })),
-      total: orderRow.total,
+      total: Number(orderRow.total),
       status: orderRow.status as
         | 'pending'
         | 'paid'
