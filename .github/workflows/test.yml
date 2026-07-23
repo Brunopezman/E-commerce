@@ -7,9 +7,9 @@ on:
     branches: [main, develop]
 
 jobs:
-  # ── Frontend + SQLite backend tests ──────────────────────────────
-  test-sqlite:
-    name: SQLite (frontend + backend)
+  # ── Frontend + backend (unit/mocked) + E2E tests ────────────────
+  test-frontend-backend:
+    name: Frontend + Backend (unit) + E2E
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
         name: Frontend unit tests (Vitest)
 
       - run: npm run test:server -- --reporter=verbose
-        name: Backend server tests (SQLite)
+        name: Backend server tests (unit/mocked)
 
       - run: npx playwright install --with-deps chromium
         name: Install Playwright browsers
@@ -39,9 +39,9 @@ jobs:
         env:
           CI: true
 
-  # ── PostgreSQL backend tests ────────────────────────────────────
+  # ── PostgreSQL backend integration tests ────────────────────────
   test-postgres:
-    name: PostgreSQL (backend only)
+    name: Backend integration (PostgreSQL)
     runs-on: ubuntu-latest
 
     services:
