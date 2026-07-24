@@ -375,17 +375,17 @@ export function CheckoutPage() {
         <p className="text-lg font-display">
           Hemos enviado el comprobante a tu correo electrónico.
         </p>
-        <div className="mt-4">
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <button
             id="btn-descargar-pdf"
-            className="bg-transparent border border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white px-4 py-2 rounded-lg mr-2 font-display uppercase text-sm font-bold transition-colors duration-300"
+            className="bg-transparent border border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white px-4 py-2 rounded-lg font-display uppercase text-sm font-bold transition-colors duration-300 w-full sm:w-auto min-h-[44px]"
             onClick={handleDownloadPdf}
           >
             <i className="bx bx-download" /> Descargar Comprobante
           </button>
           <a
             href="/"
-            className="bg-black hover:bg-coral-dark text-white px-4 py-2 rounded-lg no-underline font-display uppercase text-sm font-bold transition-colors duration-300 inline-block"
+            className="bg-black hover:bg-coral-dark text-white px-4 py-2 rounded-lg no-underline font-display uppercase text-sm font-bold transition-colors duration-300 inline-block text-center w-full sm:w-auto min-h-[44px] leading-[44px]"
           >
             Volver a la Tienda
           </a>
@@ -416,42 +416,13 @@ export function CheckoutPage() {
   return (
     <div id="seccion-pago" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-5 py-5">
       <h2 className="mb-4 font-display">Finalizar Compra</h2>
-      <div className="grid grid-cols-12 gap-4">
-        {/* Order Summary */}
-        <div className="md:col-span-4 md:order-2 mb-4">
-          <h4 className="flex justify-between items-center mb-3 font-display">
-            <span className="text-gray-500">Tu Carrito</span>
-          </h4>
-          <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg mb-3" id="resumen-lista">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex justify-between leading-tight px-4 py-3"
-              >
-                <div>
-                  <h6 className="my-0 font-display">{item.nombre}</h6>
-                  <small className="text-gray-500">
-                    Cantidad: {item.cantidad}
-                  </small>
-                </div>
-                <span className="text-gray-500">
-                  ${(item.precio * item.cantidad).toFixed(2)}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <li className="flex justify-between px-4 py-3 border border-gray-200 rounded-lg mt-2">
-            <span className="font-display">Total final a pagar</span>
-            <strong id="resumen-total">${totalFinal.toFixed(2)}</strong>
-          </li>
-        </div>
-
-        {/* Payment Form */}
-        <div className="md:col-span-8 md:order-1">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+        {/* Payment Form — first in DOM for mobile */}
+        <div className="col-span-1 md:col-span-8">
           <h4 className="mb-3 font-display">Método de Pago</h4>
           <form id="form-pago" onSubmit={handleSubmit}>
             <div className="grid grid-cols-12 gap-4">
-              <div className="md:col-span-6 mb-3">
+              <div className="col-span-12 md:col-span-6 mb-3">
                 <label htmlFor="cc-name" className="block text-sm font-medium text-gray-700 mb-1 font-display">Nombre en la tarjeta</label>
                 <input
                   type="text"
@@ -463,7 +434,7 @@ export function CheckoutPage() {
                   onChange={(e) => setCcName(e.target.value)}
                 />
               </div>
-              <div className="md:col-span-6 mb-3">
+              <div className="col-span-12 md:col-span-6 mb-3">
                 <label htmlFor="cc-number" className="block text-sm font-medium text-gray-700 mb-1 font-display">Número de tarjeta</label>
                 <input
                   type="text"
@@ -501,7 +472,7 @@ export function CheckoutPage() {
             </div>
 
             <div className="grid grid-cols-12 gap-4">
-              <div className="md:col-span-6 mb-3">
+              <div className="col-span-12 md:col-span-6 mb-3">
                 <label htmlFor="cuotas" className="block text-sm font-medium text-gray-700 mb-1 font-display">Cuotas</label>
                 <select
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral"
@@ -514,7 +485,7 @@ export function CheckoutPage() {
                   <option value={6}>6 cuotas (15% interés)</option>
                 </select>
               </div>
-              <div className="md:col-span-6 mb-3">
+              <div className="col-span-12 md:col-span-6 mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1 font-display">Valor de la cuota:</label>
                 <p id="valor-cuota" className="font-bold mt-2 font-display">
                   ${valorCuota.toFixed(2)}
@@ -575,13 +546,42 @@ export function CheckoutPage() {
             <div className="col-span-12 mt-3">
               <button
                 type="submit"
-                className="w-full bg-black text-white border-none py-3 px-4 font-display uppercase text-sm font-bold rounded-lg cursor-pointer transition-colors duration-300 hover:bg-coral-dark disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none"
+                className="w-full bg-black text-white border-none py-3 px-4 font-display uppercase text-sm font-bold rounded-lg cursor-pointer transition-colors duration-300 hover:bg-coral-dark disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-coral focus-visible:outline-none min-h-[44px]"
                 disabled={submitting}
               >
                 {submitting ? 'Procesando pago...' : 'Pagar Ahora'}
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Order Summary — second in DOM, right column on desktop */}
+        <div className="col-span-1 md:col-span-4">
+          <h4 className="flex justify-between items-center mb-3 font-display">
+            <span className="text-gray-500">Tu Carrito</span>
+          </h4>
+          <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg mb-3" id="resumen-lista">
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="flex justify-between items-center leading-tight px-3 py-2 md:px-4 md:py-3"
+              >
+                <div className="min-w-0 flex-1 mr-2">
+                  <h6 className="my-0 font-display text-sm md:text-base truncate">{item.nombre}</h6>
+                  <small className="text-gray-500 text-xs md:text-sm">
+                    Cant: {item.cantidad}
+                  </small>
+                </div>
+                <span className="text-gray-500 text-sm md:text-base whitespace-nowrap">
+                  ${(item.precio * item.cantidad).toFixed(2)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex justify-between items-center px-3 py-3 md:px-4 md:py-3 border border-gray-200 rounded-lg mt-2">
+            <span className="font-display text-sm md:text-base">Total final a pagar</span>
+            <strong id="resumen-total" className="text-base md:text-lg">${totalFinal.toFixed(2)}</strong>
+          </div>
         </div>
       </div>
     </div>

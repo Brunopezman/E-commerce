@@ -130,15 +130,4 @@ hr {
   }
 }
 
-@media only screen and (max-width: 991px) {
-  body > nav > div > button:hover,
-  body > nav > div > button:focus {
-    background-color: rgb(95, 95, 95);
-  }
-  body > nav > div > button:hover #bar,
-  body > nav > div > button:focus #bar {
-    background-color: #d8d8d8;
-  }
-}
-
 

@@ -247,9 +247,10 @@ describe('Carrito — interacción mínima desde App', () => {
   it('el contador del carrito muestra 0 inicialmente', async () => {
     render(<App />);
 
-    const contador = await screen.findByText('0');
-    // El contador está dentro del span con id "contador-carrito"
-    expect(contador.id).toBe('contador-carrito');
+    // Buscar el span del contador por id (no por texto, porque "Carrito (0)" también contiene "0")
+    const contador = document.getElementById('contador-carrito');
+    expect(contador).toBeTruthy();
+    expect(contador.textContent).toBe('0');
   });
 
   it('abre el modal del carrito al hacer clic en el icono del carrito', async () => {
