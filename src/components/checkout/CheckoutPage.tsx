@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
@@ -34,6 +34,19 @@ export function CheckoutPage() {
   const [pagoExitoso, setPagoExitoso] = useState(false);
   const [countdown, setCountdown] = useState(15);
   const [submitting, setSubmitting] = useState(false);
+
+  // Snapshot de los valores del resumen al momento del pago exitoso,
+  // para que el PDF use datos congelados y no los del carrito (que se vacía).
+  const checkoutSnapshot = useRef<{
+    resumenItems: Array<{ name: string; quantity: number; subtotal: number }>;
+    totalBase: number;
+    totalFinal: number;
+    totalConInteres: number;
+    envioCost: number;
+    cuotas: number;
+    valorCuota: number;
+    freeShipping: boolean;
+  } | null>(null);
 
   const { items: resumenItems, totalBase } = useMemo(
     () => calcularResumen(items),
@@ -116,6 +129,16 @@ export function CheckoutPage() {
             shippingType === 'tienda' ? undefined : direccion,
         });
 
+        checkoutSnapshot.current = {
+          resumenItems,
+          totalBase,
+          totalFinal,
+          totalConInteres,
+          envioCost,
+          cuotas,
+          valorCuota,
+          freeShipping,
+        };
         setPagoExitoso(true);
         clearCart();
       } catch (err) {
@@ -158,6 +181,9 @@ export function CheckoutPage() {
 
   // PDF download handler — receipt with full user info
   const handleDownloadPdf = useCallback(() => {
+    const snap = checkoutSnapshot.current;
+    if (!snap) return;
+
     const pdf = new jsPDF();
     const nroTarjeta = ccNumber.replace(/\D/g, '');
     const nroRecibo = `RMR-${Date.now().toString(36).toUpperCase()}`;
@@ -240,8 +266,8 @@ export function CheckoutPage() {
     pdf.text(`Tarjeta: **** **** **** ${nroTarjeta.slice(-4)}`, 20, y);
     pdf.text(`Titular: ${ccName}`, 75, y);
     y += 5;
-    pdf.text(`Cuotas: ${cuotas} ${cuotas === 1 ? '(Sin interés)' : `(${(cuotas - 1) * 5}% interés)`}`, 20, y);
-    pdf.text(`Valor cuota: $${valorCuota.toFixed(2)}`, 75, y);
+    pdf.text(`Cuotas: ${snap.cuotas} ${snap.cuotas === 1 ? '(Sin interés)' : `(${(snap.cuotas - 1) * 5}% interés)`}`, 20, y);
+    pdf.text(`Valor cuota: $${snap.valorCuota.toFixed(2)}`, 75, y);
     y += 10;
 
     // ── Products table ────────────────────────────
@@ -266,7 +292,7 @@ export function CheckoutPage() {
     pdf.setFont('courier', 'normal');
     pdf.setFontSize(8);
 
-    resumenItems.forEach((item) => {
+    snap.resumenItems.forEach((item) => {
       if (y > 265) {
         pdf.addPage();
         y = 20;
@@ -291,14 +317,14 @@ export function CheckoutPage() {
     pdf.setFont('courier', 'normal');
     pdf.setFontSize(8.5);
     pdf.text('Subtotal', 20, y);
-    pdf.text(`$${totalBase.toFixed(2)}`, rightMargin, y, { align: 'right' });
+    pdf.text(`$${snap.totalBase.toFixed(2)}`, rightMargin, y, { align: 'right' });
     y += 5;
 
-    if (cuotas > 1) {
-      const interesPorcentaje = (cuotas - 1) * 5;
-      pdf.text(`Interés (${interesPorcentaje}% / ${cuotas} cuotas)`, 20, y);
+    if (snap.cuotas > 1) {
+      const interesPorcentaje = (snap.cuotas - 1) * 5;
+      pdf.text(`Interés (${interesPorcentaje}% / ${snap.cuotas} cuotas)`, 20, y);
       pdf.text(
-        `+ $${(totalConInteres - totalBase).toFixed(2)}`,
+        `+ $${(snap.totalConInteres - snap.totalBase).toFixed(2)}`,
         rightMargin, y, { align: 'right' },
       );
       y += 5;
@@ -306,7 +332,7 @@ export function CheckoutPage() {
 
     pdf.text('Envío', 20, y);
     pdf.text(
-      freeShipping ? '¡Gratis!' : `$${envioCost.toFixed(2)}`,
+      snap.freeShipping ? '¡Gratis!' : `$${snap.envioCost.toFixed(2)}`,
       rightMargin, y, { align: 'right' },
     );
     y += 6;
@@ -319,7 +345,7 @@ export function CheckoutPage() {
     pdf.setFont('courier', 'bold');
     pdf.setFontSize(11);
     pdf.text('TOTAL', 20, y);
-    pdf.text(`$${totalFinal.toFixed(2)}`, rightMargin, y, { align: 'right' });
+    pdf.text(`$${snap.totalFinal.toFixed(2)}`, rightMargin, y, { align: 'right' });
     y += 4;
     pdf.setLineWidth(0.5);
     pdf.line(14, y, rightMargin, y);
@@ -335,9 +361,7 @@ export function CheckoutPage() {
 
     pdf.save(`Comprobante_RMR_${nroRecibo}.pdf`);
   }, [
-    ccNumber, ccName, shippingType, direccion, resumenItems,
-    totalFinal, totalBase, totalConInteres, envioCost, cuotas,
-    valorCuota, freeShipping, user,
+    ccNumber, ccName, shippingType, direccion, user,
   ]);
 
   if (pagoExitoso) {
