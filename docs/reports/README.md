@@ -15,6 +15,7 @@
 | **Fase 2** | PostgreSQL-only + deploy Render/Neon (v1.1.0 → v1.2.0) | `docs/reports/qa/2026-07-18-qa-cobertura.md` ← Cobertura post-cambios (101 → 364 tests) |
 | | | `docs/reports/auditor/2026-07-22-auditoria-fase2.md` ← Issues Fase 1 corregidos + nuevos hallazgos |
 | | | `docs/reports/qa/2026-07-22-qa-calidad.md` ← Reporte de calidad v1.2.0 |
+| **Fase 3** | Limpieza final y consolidación (v2.0.0) | `docs/reports/qa/2026-07-24-qa-final.md` ← Reporte final post-limpieza |
 
 ---
 
@@ -45,6 +46,8 @@ Los reportes de Fase 1 (v1.0.0) se mantienen en `docs/archive/reports/` como ref
 
 | Fecha | Cambio |
 |------|--------|
+| 2026-07-24 | Reporte final de QA post-limpieza (v2.0.0) |
+| 2026-07-24 | Limpieza de código muerto, documentación, consistencia |
 | 2026-07-23 | Estandarización de nombres: formato `YYYY-MM-DD-tipo-descripcion.md` |
 | 2026-07-23 | Creación de este índice de trazabilidad |
 | 2026-07-22 | Reportes de Fase 2 (v1.1.0 → v1.2.0) |

@@ -29,12 +29,16 @@ import '@testing-library/jest-dom'
 ## Estructura esperada
 ```
 src/
-  components/
-    cart/
-      CartItem.tsx
-      CartItem.test.tsx     # Vitest + RTL, junto al componente
-tests/
-  e2e/                       # Playwright, flujos reales en navegador
+  __tests__/                  # Vitest + RTL, todos los tests unitarios
+    checkout.test.js
+    cart.test.js
+    auth.test.js
+    ...
+e2e/                           # Playwright, flujos reales en navegador
+  home.spec.js
+  shop.spec.js
+  cart.spec.js
+  ...
 ```
 
 ## Comandos

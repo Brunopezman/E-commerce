@@ -2,7 +2,6 @@ import type { Product } from '../../types/product';
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
   onProductClick?: (id: number) => void;
 }
 

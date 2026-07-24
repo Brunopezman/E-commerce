@@ -2,15 +2,10 @@
  * API Service — Single source of truth for all backend calls.
  *
  * This module defines the base URL and endpoints for the e-commerce API.
- * In Paso A (mock), all endpoints point at json-server (port 3001).
- * In Paso B (real backend), only the BASE_URL needs to change.
- *
  * Each function returns typed responses matching the API contract.
  */
 
 import type { Product } from '../types/product';
-import type { User } from '../types/user';
-import type { AuthUser } from '../types/auth';
 import type { Order } from '../types/order';
 
 /**
@@ -37,58 +32,6 @@ export async function fetchProducts(): Promise<Product[]> {
 export async function fetchProductById(id: number): Promise<Product> {
   const res = await fetch(`${BASE_URL}/products/${id}`);
   if (!res.ok) throw new Error(`fetchProductById failed: HTTP ${res.status}`);
-  return res.json();
-}
-
-// ──────────────────────────────────────────────
-//  Users
-// ──────────────────────────────────────────────
-
-/** POST /users — register a new user (legacy, for json-server) */
-export async function registerUser(
-  user: Omit<User, 'id' | 'createdAt'>,
-): Promise<User> {
-  const res = await fetch(`${BASE_URL}/users`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(user),
-  });
-  if (!res.ok) throw new Error(`registerUser failed: HTTP ${res.status}`);
-  return res.json();
-}
-
-/** POST /api/auth/login — authenticate and return user + token */
-export async function loginUser(
-  email: string,
-  password: string,
-): Promise<{ user: AuthUser; token: string }> {
-  const res = await fetch(`${BASE_URL}/api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data.error as string) || (data.msg as string) || 'Credenciales inválidas.');
-  }
-  return res.json() as Promise<{ user: AuthUser; token: string }>;
-}
-
-/** PATCH /users/:id — update user profile (requires auth) */
-export async function updateUser(
-  id: number | string,
-  data: Partial<User>,
-): Promise<User> {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`${BASE_URL}/users/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error(`updateUser failed: HTTP ${res.status}`);
   return res.json();
 }
 
@@ -120,13 +63,6 @@ export async function updateProductStock(
 // ──────────────────────────────────────────────
 //  Orders
 // ──────────────────────────────────────────────
-
-/** GET /orders?userId=:id — orders for a user */
-export async function fetchOrdersByUser(userId: number | string): Promise<Order[]> {
-  const res = await fetch(`${BASE_URL}/orders?userId=${userId}`);
-  if (!res.ok) throw new Error(`fetchOrdersByUser failed: HTTP ${res.status}`);
-  return res.json();
-}
 
 /** POST /orders — create a new order */
 export async function createOrder(

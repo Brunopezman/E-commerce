@@ -59,5 +59,5 @@ Mientras ninguna de las dos opciones se implemente, el envío de emails en produ
 ## Referencias
 
 - [Render changelog — SMTP port blocking on free plans](https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports)
-- [Código del servicio de email](https://github.com/anomalyco/rock-merch/blob/main/server/src/services/emailService.ts)
+- [Código del servicio de email](`server/src/services/emailService.ts`)
 - [API en producción](https://rockmerch-api.onrender.com/health)

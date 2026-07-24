@@ -26,9 +26,10 @@ export async function initDb(): Promise<void> {
       await query(
         'TRUNCATE TABLE products, users, orders, order_items, _migrations RESTART IDENTITY CASCADE',
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If tables don't exist yet (fresh DB), ignore error SQLSTATE 42P01
-      if (err?.code === '42P01') {
+      const errCode = err && typeof err === 'object' && 'code' in err ? (err as { code?: string }).code : undefined;
+      if (errCode === '42P01') {
         console.log('[db] Tables do not exist yet; skipping truncate.');
       } else {
         throw err;

@@ -105,42 +105,12 @@ hr {
   opacity: 0.7;
 }
 
-.product .buy-btn {
-  background-color: rgb(245, 146, 109);
-  transform: translateY(20px);
-  opacity: 0;
-  transition: 0.3s all;
-}
-
-.product:hover .buy-btn {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.buy-btn {
-  background-color: rgb(245, 146, 109);
-  opacity: 1;
-  transition: 0.3s all;
-}
-
 /* ===== Product images ===== */
 .product img {
   width: 100%;
   height: auto;
   box-sizing: border-box;
   object-fit: cover;
-}
-
-/* ===== Tarjeta logos ===== */
-.tarjeta-logo {
-  height: 32px;
-  opacity: 0.9;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.tarjeta-logo.activa {
-  opacity: 1;
-  transform: scale(1.05);
 }
 
 /* ===== Card brand logo container ===== */
@@ -151,33 +121,12 @@ hr {
   align-items: center;
 }
 
-/* ===== Login form focus ===== */
-.modal-body .form-control:focus {
-  border-color: rgb(245, 146, 109);
-  box-shadow: 0 0 0 0.25rem rgba(245, 146, 109, 0.25);
-}
-
-/* HR in login modal */
-.modal-body hr {
-  background-color: rgb(245, 146, 109);
-  height: 1px;
-  border: none;
-  opacity: 1;
-}
-
 /* ===== Media Queries ===== */
 @media (max-width: 576px) {
   .modal-carrito {
     min-width: 90%;
     margin: 10px;
     padding: 15px;
-  }
-}
-
-@media (min-width: 768px) {
-  .order-md-2 {
-    position: sticky;
-    top: 100px;
   }
 }
 

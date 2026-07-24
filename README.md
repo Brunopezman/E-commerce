@@ -10,7 +10,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 [![Built with opencode](https://img.shields.io/badge/Built_with-opencode_agents-8A2BE2?style=flat-square&logo=sparkles&logoColor=white)](./AGENTS.md)
-[![Tests](https://img.shields.io/badge/Tests-364_passing-4CAF50?style=flat-square&logo=vitest&logoColor=white)](./docs/reports/qa/)
+[![Tests](https://img.shields.io/badge/Tests-247_passing-4CAF50?style=flat-square&logo=vitest&logoColor=white)](./docs/reports/qa/)
 
 E-commerce de merchandising de bandas de rock con frontend React, backend Express y base de datos PostgreSQL.
 
@@ -47,10 +47,14 @@ E-commerce de merchandising de bandas de rock con frontend React, backend Expres
 /
 ├── src/                          # Código fuente del frontend React
 │   ├── components/               # Componentes React organizados por dominio
+│   │   ├── admin/                # Panel de administración
 │   │   ├── auth/                 # Login, registro, logout
 │   │   ├── cart/                 # Modal del carrito
-│   │   ├── catalog/              # Grilla de productos
+│   │   ├── catalog/              # Grilla y detalle de productos
 │   │   ├── checkout/             # Página de finalización de compra
+│   │   ├── home/                 # Hero, servicios, marcas
+│   │   ├── layout/               # AppContent, Header, Footer, ShopPage, FAQ
+│   │   ├── router/               # Router SPA y rutas de detalle
 │   │   └── ui/                   # Componentes reutilizables (ProductCard, Toast)
 │   ├── context/                  # Contextos React con estado global (Auth, Cart)
 │   ├── hooks/                    # Custom hooks con lógica de negocio
@@ -154,7 +158,7 @@ Resumen rápido:
 
 ### Unitarios / Integración (Vitest)
 
-Actualmente: **364 tests pasando** (283 frontend + 45 backend + 36 E2E).
+Actualmente: **247 tests unitarios/de integración (todos en frontend) + 29 tests de backend + 31 tests E2E = 307 tests totales**.
 
 ```bash
 npm test              # Ejecuta toda la suite frontend
@@ -164,7 +168,7 @@ npm run test:watch    # Modo watch
 ```
 
 | Área | Suites | Cobertura |
-|---|---|---|
+|---|---|---|---|
 | **Checkout** | `checkout.test.js` | detectCardType, validarLuhn, formatearNumeroTarjeta, cálculos de cuotas y envío, resumen |
 | **Catálogo** | `products.service.test.js`, `FilterSidebar.test.jsx`, `ProductGrid.test.jsx`, `ProductCard.test.jsx`, `ProductDetailPage.test.jsx` | fetch, filtros, búsqueda, renderizado de grilla y cards |
 | **Carrito** | `cart.test.js` | agregar/eliminar/vaciar productos, persistencia localStorage |
@@ -174,10 +178,6 @@ npm run test:watch    # Modo watch
 | **FAQ** | `FaqSection.test.tsx` | accordion, contenido |
 | **Catálogo hook** | `useCatalog.test.jsx` | fetch con loading/error, datos de productos |
 | **Navegación** | `navigation.test.jsx` | router SPA, cambio de vistas |
-| **Backend — Servicios** | `emailService.test.ts` | plantillas email, PDF, envío |
-| **Backend — Rutas** | `products.test.ts`, `users.test.ts` | endpoints REST, validaciones |
-| **Backend — Auth** | `auth.test.ts` | middleware JWT, roles |
-| **Backend — DB** | `postgres-backend.test.ts`, `postgres-connection.test.ts` | conexión PostgreSQL, queries |
 
 ### End-to-End (Playwright)
 

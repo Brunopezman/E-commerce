@@ -16,7 +16,7 @@ export function Header({ onNavigate }: { onNavigate: (view: 'home' | 'shop') => 
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-md sticky top-0 left-0 z-40" style={{ boxShadow: '0 5px 10px rgba(0, 0, 0, 0.1)' }}>
+      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-md sticky top-0 left-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center justify-between h-16">
             <h1

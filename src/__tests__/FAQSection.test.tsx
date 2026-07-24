@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { FaqSection } from '../components/layout/FaqSection';
+import { FAQSection } from '../components/layout/FAQSection';
 
 const QUESTIONS = [
   '¿Cuánto tarda el envío?',
@@ -11,18 +11,18 @@ const QUESTIONS = [
   '¿Cómo puedo contactar a soporte?',
 ];
 
-describe('FaqSection', () => {
+describe('FAQSection', () => {
   // ── 1. Título y subtítulo ─────────────────────────────────────────────
 
   it('renderiza el título "Preguntas Frecuentes"', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     expect(
       screen.getByRole('heading', { name: 'Preguntas Frecuentes' })
     ).toBeInTheDocument();
   });
 
   it('renderiza el subtítulo', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     expect(
       screen.getByText('Todo lo que necesitás saber antes de comprar')
     ).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe('FaqSection', () => {
   // ── 2. Preguntas visibles ─────────────────────────────────────────────
 
   it('renderiza las 6 preguntas visibles inicialmente', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(6);
 
@@ -43,7 +43,7 @@ describe('FaqSection', () => {
   // ── 3. Respuestas colapsadas inicialmente ─────────────────────────────
 
   it('las respuestas NO son visibles inicialmente (todas colapsadas)', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const buttons = screen.getAllByRole('button');
     buttons.forEach((button) => {
       expect(button).toHaveAttribute('aria-expanded', 'false');
@@ -51,7 +51,7 @@ describe('FaqSection', () => {
   });
 
   it('los contenedores de respuesta tienen role="region"', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     // The <section> implicitly gets role="region" via aria-label,
     // so we filter it out to count only the answer divs
     const allRegions = screen.getAllByRole('region');
@@ -65,7 +65,7 @@ describe('FaqSection', () => {
   // ── 4. Acordeón: abrir una pregunta ───────────────────────────────────
 
   it('al hacer clic en una pregunta, se expande su respuesta', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const firstButton = screen.getAllByRole('button')[0];
 
     fireEvent.click(firstButton);
@@ -78,7 +78,7 @@ describe('FaqSection', () => {
   // ── 5. Acordeón: cerrar la misma pregunta ─────────────────────────────
 
   it('al hacer clic en la misma pregunta de nuevo, se colapsa', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const firstButton = screen.getAllByRole('button')[0];
 
     // Abrir
@@ -93,7 +93,7 @@ describe('FaqSection', () => {
   // ── 6. Acordeón: modo acordeón (solo una abierta) ────────────────────
 
   it('al hacer clic en una pregunta diferente, se cierra la anterior y se abre la nueva (modo acordeón)', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const buttons = screen.getAllByRole('button');
 
     // Abrir primera pregunta
@@ -110,7 +110,7 @@ describe('FaqSection', () => {
   // ── 7. Controles de accesibilidad en cada pregunta ────────────────────
 
   it('cada botón de pregunta tiene aria-controls que referencia su región', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const buttons = screen.getAllByRole('button');
 
     buttons.forEach((button, index) => {
@@ -119,7 +119,7 @@ describe('FaqSection', () => {
   });
 
   it('cada región de respuesta tiene un id que coincide con aria-controls', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const allRegions = screen.getAllByRole('region');
     // The first "region" is the <section>, skip it to check only answer divs
     const answerRegions = allRegions.filter((r) => r.tagName !== 'SECTION');
@@ -132,7 +132,7 @@ describe('FaqSection', () => {
   // ── 8. La sección tiene aria-label ────────────────────────────────────
 
   it('la sección FAQ tiene aria-label="Preguntas frecuentes"', () => {
-    render(<FaqSection />);
+    render(<FAQSection />);
     const section = screen.getByLabelText('Preguntas frecuentes');
     expect(section).toBeInTheDocument();
     expect(section.tagName).toBe('SECTION');

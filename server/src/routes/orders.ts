@@ -8,6 +8,7 @@ import { Router, Request, Response } from 'express';
 import { queryAll, queryOne, run } from '../db.js';
 import { sendOrderConfirmationEmail } from '../services/emailService.js';
 import { generateOrderPDF } from '../services/pdfService.js';
+import type { Order } from '../types.js';
 
 /**
  * Convert datetime to ISO 8601 format.
@@ -170,7 +171,7 @@ router.post('/', async (req: Request, res: Response) => {
       cantidad: number;
     }>;
 
-    const newOrder: import('../types.js').Order = {
+    const newOrder: Order = {
       id: orderRow.id,
       userId: orderRow.user_id,
       items: itemRows.map((item) => ({
@@ -210,7 +211,7 @@ router.post('/', async (req: Request, res: Response) => {
  * Nunca debe lanzar; cualquier error queda logueado acá adentro.
  */
 async function sendOrderConfirmationFireAndForget(
-  newOrder: import('../types.js').Order,
+  newOrder: Order,
   userId: string | number,
 ): Promise<void> {
   try {

@@ -10,7 +10,7 @@ import type { Order } from '../types.js';
 // ── Helpers ─────────────────────────────────────────────────────────────
 
 const APP_URL = process.env.RMR_APP_URL || 'http://localhost:3000';
-const BRAND = '🎸 Rock Merch & Roll';
+const BRAND = 'Rock Merch & Roll';
 
 /** Format a number as locale currency string (e.g. 9500 → "9.500,00"). */
 function formatPrice(amount: number): string {

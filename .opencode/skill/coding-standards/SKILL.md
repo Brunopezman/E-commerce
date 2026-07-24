@@ -9,24 +9,60 @@ description: Reglas de estilo y estructura de carpetas del proyecto (React + Typ
 ```
 src/
   components/
+    admin/
+      AdminPanel.tsx
+    auth/
+      LoginModal.tsx
+      LogoutConfirmModal.tsx
+      RegisterPage.tsx
     cart/
-      CartItem.tsx
-      CartSummary.tsx
+      CartItemRow.tsx
+      CartModal.tsx
     catalog/
+      FilterSidebar.tsx
       ProductCard.tsx
+      ProductDetailPage.tsx
       ProductGrid.tsx
+      ProductsSection.tsx
+    checkout/
+      CheckoutPage.tsx
+    home/
+      BannerServices.tsx
+      BrandSection.tsx
+      HeroSection.tsx
+    layout/
+      AppContent.tsx
+      FaqSection.tsx
+      Footer.tsx
+      Header.tsx
+      ShopPage.tsx
+    router/
+      ProductDetailRoute.tsx
+      Router.tsx
     ui/                 # componentes genéricos reutilizables (Button, Modal, etc.)
+      ProductCard.tsx
+      Toast.tsx
   hooks/
+    useAuth.ts
     useCart.ts
     useCatalog.ts
+    useToast.ts
   services/
     api.ts              # cliente HTTP tipado (fetch a la mock API / backend real)
-    cart.service.ts      # funciones puras de lógica de negocio si no ameritan un hook
+    authService.ts      # funciones puras de lógica de autenticación
+    cartService.ts      # funciones puras de lógica del carrito
+    checkoutService.ts  # funciones puras de lógica de checkout
+    productService.ts   # funciones puras de lógica de catálogo
+    router.ts           # lógica de ruteo SPA
+    userService.ts      # lógica de administración de usuarios
   types/
-    product.ts
+    auth.ts
     cart.ts
     order.ts
+    product.ts
+    user.ts
   context/
+    AuthContext.tsx
     CartContext.tsx
   App.tsx
   main.tsx
@@ -36,8 +72,7 @@ src/
 - Componentes: PascalCase, un componente por archivo (`ProductCard.tsx`).
 - Hooks: camelCase con prefijo `use` (`useCart.ts`).
 - Types/interfaces: PascalCase, sufijo opcional según convenga (`Product`, `CartItem`).
-- Archivos que no son componentes (services, utils): kebab-case o camelCase, consistente
-  dentro de la carpeta.
+- Archivos que no son componentes (services, utils): camelCase consistente dentro de la carpeta.
 
 ## Reglas TypeScript
 - `strict: true` en `tsconfig.json`, sin excepciones.

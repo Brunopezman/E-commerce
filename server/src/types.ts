@@ -10,11 +10,12 @@ export interface Product {
   img: string;
   descripcion?: string;
   precio: number;
+  stock?: number;
   cantidad?: number;
 }
 
 export interface User {
-  id: number | string;
+  id: number;
   email: string;
   name: string;
   role: 'admin' | 'user';
@@ -26,16 +27,9 @@ export interface User {
   createdAt?: string;
 }
 
-export interface OrderItem {
-  productId: number;
-  nombre: string;
-  precio: number;
-  cantidad: number;
-}
-
 export interface Order {
   id: number;
-  userId: number | string;
+  userId: number;
   items: OrderItem[];
   total: number;
   status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
@@ -43,22 +37,9 @@ export interface Order {
   shippingAddress?: string;
 }
 
-/** Row from the order_items table (internal) */
-export interface OrderItemRow {
-  id: number;
-  order_id: number;
-  product_id: number;
+export interface OrderItem {
+  productId: number;
   nombre: string;
   precio: number;
   cantidad: number;
-}
-
-/** Contact message from the website form */
-export interface ContactMessage {
-  id: number;
-  name: string;
-  email: string;
-  area: string;
-  message: string;
-  createdAt: string;
 }

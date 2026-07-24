@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { FaqSection } from './FaqSection';
+import { FAQSection } from './FAQSection';
 import { HeroSection } from '../home/HeroSection';
 import { BannerServices } from '../home/BannerServices';
 import { BrandSection } from '../home/BrandSection';
@@ -20,7 +20,7 @@ export function ShopPage() {
           <HeroSection onShopClick={() => setView('shop')} />
           <BannerServices />
           <BrandSection />
-          <FaqSection />
+          <FAQSection />
         </>
       ) : (
         <ProductsSection />

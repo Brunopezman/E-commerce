@@ -2,7 +2,7 @@
  * PostgreSQL connection pool (pg).
  *
  * Singleton pool initialized when DATABASE_URL or PG variables are set.
- * Exports `query()` and `getClient()` helpers.
+ * Exports `query()` helper.
  */
 
 import pg from 'pg';
@@ -61,21 +61,4 @@ export async function query(
   return p.query(text, params);
 }
 
-/**
- * Get a dedicated client from the pool (useful for transactions).
- */
-export async function getClient(): Promise<pg.PoolClient> {
-  const p = getPool();
-  return p.connect();
-}
 
-/**
- * Gracefully close the pool (call on shutdown).
- */
-export async function closePool(): Promise<void> {
-  if (pool) {
-    await pool.end();
-    pool = null;
-    console.log('[pg] Pool closed.');
-  }
-}

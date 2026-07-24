@@ -160,13 +160,9 @@ npm run server
 
 ### Conexión del frontend React
 
-Para conectar el frontend React al backend real, cambiar en `src/services/api.ts`:
+El frontend se conecta al backend real por defecto. `BASE_URL` se configura en `src/services/api.ts`:
 
 ```typescript
-// Antes (mock):
-export const BASE_URL = 'http://localhost:3001';
-
-// Después (real):
 export const BASE_URL = 'http://localhost:4000';
 ```
 
@@ -197,7 +193,7 @@ order_items     (id, order_id, product_id, nombre, precio, cantidad)
 |---|---|---|
 | `GET` | `/health` | Health check — retorna `{ "status": "ok", "db": "postgresql" }` |
 
-## Reglas de transición a Paso B
+> **⚠️ Histórico:** Las siguientes reglas corresponden a la transición desde json-server mock (Paso A) hacia el backend real (Paso B). Ambas implementaciones coexisten y comparten el mismo contrato, por lo que las reglas siguen siendo válidas pero ya no es necesario "transicionar" — el frontend apunta al backend real por defecto.
 
 1. **Solo cambia `BASE_URL`** en `src/services/api.ts`.
 2. Los nombres de campo, tipos y estructura de la respuesta NO cambian.
