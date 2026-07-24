@@ -11,7 +11,10 @@ import jwt from 'jsonwebtoken';
 import { queryOne, run } from '../db.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rmr-dev-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required — set it in .env or Render dashboard');
+}
 
 const router = Router();
 

@@ -70,7 +70,7 @@ export async function seedProducts(): Promise<void> {
  * - If the user exists but lacks a password_hash, sets one.
  *
  * Admin email from ADMIN_EMAIL env var (default: admin@rock.com).
- * Admin password from ADMIN_PASSWORD env var (default: admin123).
+ * Admin password from ADMIN_PASSWORD env var (required).
  */
 export async function seedAdminUser(): Promise<void> {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@rock.com';
@@ -92,7 +92,8 @@ export async function seedAdminUser(): Promise<void> {
 
     const pwHash = (user.password_hash as string) || '';
     if (!pwHash) {
-      const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
+      const defaultPassword = process.env.ADMIN_PASSWORD;
+      if (!defaultPassword) throw new Error('ADMIN_PASSWORD environment variable is required');
       const newHash = bcrypt.hashSync(defaultPassword, 10);
       await run('UPDATE users SET password_hash = $1 WHERE email = $2', [newHash, adminEmail]);
       updated = true;
@@ -108,7 +109,8 @@ export async function seedAdminUser(): Promise<void> {
   }
 
   // Create new admin user
-  const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const defaultPassword = process.env.ADMIN_PASSWORD;
+  if (!defaultPassword) throw new Error('ADMIN_PASSWORD environment variable is required');
   const passwordHash = bcrypt.hashSync(defaultPassword, 10);
   await run(
     "INSERT INTO users (email, name, role, password_hash) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING",
